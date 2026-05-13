@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="vi"><head>
 <meta charset="utf-8"/>
@@ -213,19 +213,19 @@
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
 <input class="w-full pl-10 pr-4 py-2 bg-surface-container rounded-xl border-none focus:ring-2 focus:ring-primary/20 text-body-sm" placeholder="Tìm kiếm theo tên, email, SĐT..." type="text"/>
 </div>
-<select class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
+<select id="tasker-svc-filter" class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
 <option>Loại dịch vụ</option>
 <option>Dọn dẹp</option>
 <option>Giặt ủi</option>
 <option>Sửa chữa</option>
 </select>
-<select class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
+<select id="tasker-area-filter" class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
 <option>Khu vực</option>
 <option>Quận 1</option>
 <option>Quận 3</option>
 <option>Bình Thạnh</option>
 </select>
-<select class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
+<select id="tasker-status-filter" class="bg-surface-container rounded-xl border-none text-body-sm py-2 px-4 focus:ring-2 focus:ring-primary/20">
 <option>Trạng thái</option>
 <option>Hoạt động</option>
 <option>Chờ duyệt</option>
@@ -457,23 +457,11 @@
 </table>
 <!-- Pagination -->
 <div class="p-4 flex justify-between items-center bg-surface-container-low border-t border-outline-variant">
-<p id="tasker-pagination-info" class="text-body-sm text-on-surface-variant">Đang tải...</p>
-<div class="flex items-center gap-2">
-<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
-<span class="material-symbols-outlined text-[20px]" data-icon="chevron_left">chevron_left</span>
-</button>
-<button class="w-8 h-8 bg-primary text-white rounded-lg font-bold text-body-sm">1</button>
-<button class="w-8 h-8 hover:bg-surface-container rounded-lg text-body-sm">2</button>
-<button class="w-8 h-8 hover:bg-surface-container rounded-lg text-body-sm">3</button>
-<span class="px-2 text-on-surface-variant">...</span>
-<button class="w-8 h-8 hover:bg-surface-container rounded-lg text-body-sm">21</button>
-<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined text-[20px]" data-icon="chevron_right">chevron_right</span>
-</button>
+<p id="tasker-pagination-info" class="text-body-sm text-on-surface-variant">Dang tai...</p>
 </div>
 </div>
 </div>
-</div>
+
 <!-- Right Column: Pending Panel (300px) -->
 <div class="w-[300px] flex-shrink-0">
 <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(36,25,20,0.04)] overflow-hidden">
@@ -883,6 +871,7 @@ document.querySelectorAll('button').forEach(function(btn) {
 
   function filterAndRender(filter, searchQuery) {
     var filtered = allTaskers.slice();
+    // Tab filter
     if (filter === 'pending') {
       filtered = filtered.filter(function(t) { return t.kyc_status === 'PENDING' || t.kyc_status === 'PENDING_APPROVAL'; });
     } else if (filter === 'active') {
@@ -890,11 +879,31 @@ document.querySelectorAll('button').forEach(function(btn) {
     } else if (filter === 'locked') {
       filtered = filtered.filter(function(t) { return t.kyc_status === 'REJECTED' || t.kyc_status === 'SUSPENDED'; });
     }
+    // Dropdown filters
+    var svcSel = document.getElementById('tasker-svc-filter');
+    var areaSel = document.getElementById('tasker-area-filter');
+    var statusSel = document.getElementById('tasker-status-filter');
+    var svcVal = svcSel ? svcSel.value : '';
+    var areaVal = areaSel ? areaSel.value : '';
+    var statusVal = statusSel ? statusSel.value : '';
+    if (svcVal && svcVal !== 'Loai dich vu' && svcVal !== 'Loại dịch vụ') {
+      filtered = filtered.filter(function(t) { return (t.service_type || '').toLowerCase().includes(svcVal.toLowerCase()); });
+    }
+    if (areaVal && areaVal !== 'Khu vuc' && areaVal !== 'Khu vực') {
+      filtered = filtered.filter(function(t) { return (t.area || '').toLowerCase().includes(areaVal.toLowerCase()); });
+    }
+    if (statusVal && statusVal !== 'Trang thai' && statusVal !== 'Trạng thái') {
+      var statusKeyMap = { 'Cho duyet': ['PENDING','PENDING_APPROVAL'], 'Hoat dong': ['APPROVED','ACTIVE'], 'Tam khoa': ['REJECTED','SUSPENDED'] };
+      var keys = statusKeyMap[statusVal] || [statusVal.toUpperCase()];
+      filtered = filtered.filter(function(t) { return keys.indexOf(t.kyc_status) >= 0; });
+    }
+    // Search
     if (searchQuery) {
       var q = searchQuery.toLowerCase();
       filtered = filtered.filter(function(t) {
         return (t.full_name && t.full_name.toLowerCase().includes(q)) ||
-               (t.phone && t.phone.toLowerCase().includes(q));
+               (t.phone && t.phone.toLowerCase().includes(q)) ||
+               (t.service_type && t.service_type.toLowerCase().includes(q));
       });
     }
     renderTable(filtered);
@@ -922,6 +931,12 @@ document.querySelectorAll('button').forEach(function(btn) {
       filterAndRender(currentFilter, searchInput.value);
     });
   }
+
+  // Dropdown filter events
+  ['tasker-svc-filter', 'tasker-area-filter', 'tasker-status-filter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function() { filterAndRender(currentFilter, searchInput ? searchInput.value : ''); });
+  });
 
   // Load data
   showLoading();
