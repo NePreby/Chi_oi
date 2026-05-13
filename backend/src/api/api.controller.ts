@@ -262,4 +262,18 @@ export class ApiController {
   async getAdminWithdrawals() {
     return this.apiService.getAdminWithdrawals();
   }
+
+  @Get('admin/transactions')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Lấy lịch sử giao dịch (có filter type, giới hạn 100)' })
+  async getAdminTransactions(@Query('type') type?: string) {
+    return this.apiService.getAdminTransactions(type);
+  }
+
+  @Get('admin/wallet-stats')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Thống kê tổng hợp ví (tổng số dư, giao dịch hôm nay, chờ thanh toán, đã thanh toán tháng này)' })
+  async getAdminWalletStats() {
+    return this.apiService.getAdminWalletStats();
+  }
 }

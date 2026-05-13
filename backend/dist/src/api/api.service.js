@@ -449,6 +449,47 @@ let ApiService = class ApiService {
             },
         });
     }
+    async getAdminTransactions(type) {
+        const where = {};
+        if (type && type !== 'ALL')
+            where.type = type;
+        return this.prisma.transactions.findMany({
+            where,
+            include: {
+                wallets: {
+                    include: {
+                        users: { select: { user_id: true, full_name: true, phone: true, role: true } }
+                    }
+                },
+                orders: { select: { order_code: true } }
+            },
+            orderBy: { created_at: 'desc' },
+            take: 100
+        });
+    }
+    async getAdminWalletStats() {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const [totalBalance, todayCount, pendingWithdrawal, paidThisMonth] = await Promise.all([
+            this.prisma.wallets.aggregate({ _sum: { balance: true } }),
+            this.prisma.transactions.count({ where: { created_at: { gte: startOfDay } } }),
+            this.prisma.transactions.aggregate({
+                where: { type: 'WITHDRAWAL', status: 'PENDING' },
+                _sum: { amount: true }
+            }),
+            this.prisma.transactions.aggregate({
+                where: { type: 'PAYMENT', status: 'COMPLETED', created_at: { gte: startOfMonth } },
+                _sum: { amount: true }
+            }),
+        ]);
+        return {
+            totalBalance: Number(totalBalance._sum.balance || 0),
+            todayTransactions: todayCount,
+            pendingWithdrawal: Number(pendingWithdrawal._sum.amount || 0),
+            paidThisMonth: Number(paidThisMonth._sum.amount || 0),
+        };
+    }
 };
 exports.ApiService = ApiService;
 exports.ApiService = ApiService = __decorate([
