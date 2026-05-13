@@ -276,15 +276,20 @@
 </div>
 <div class="flex flex-col gap-1.5 lg:col-span-1 xl:col-span-1">
 <label class="text-label-md font-label-bold px-1">Thời gian</label>
-<div class="flex items-center gap-2">
-<input class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant/20 rounded-lg text-body-sm focus:ring-2 focus:ring-primary-container outline-none" type="date"/>
+<div class="flex items-center gap-1.5">
+<input id="order-date-from" class="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant/20 rounded-lg text-body-sm focus:ring-2 focus:ring-primary-container outline-none" type="date" title="Từ ngày"/>
+<span class="text-on-surface-variant text-xs font-bold">→</span>
+<input id="order-date-to" class="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant/20 rounded-lg text-body-sm focus:ring-2 focus:ring-primary-container outline-none" type="date" title="Đến ngày"/>
 </div>
 </div>
 <div class="flex items-end gap-2 lg:col-span-4 xl:col-span-1">
-<button class="flex-1 px-6 py-2 bg-primary text-on-primary font-label-bold rounded-lg hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center gap-2">
+<button id="btn-filter-apply" class="flex-1 px-6 py-2 bg-primary text-on-primary font-label-bold rounded-lg hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
                             Lọc
                         </button>
+<button id="btn-clear-filters" title="Xóa bộ lọc" class="px-3 py-2 border border-outline-variant/30 text-on-surface-variant font-label-bold rounded-lg hover:bg-error/10 hover:text-error hover:border-error/20 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
+</button>
 <button class="px-3 py-2 border border-primary text-primary font-label-bold rounded-lg hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-[18px]" data-icon="download">download</span>
                             Xuất Excel
@@ -720,26 +725,35 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
   var allOrders = [];
 
   function applyFilters() {
-    var q      = (document.getElementById('order-search') || {}).value || '';
-    var svc    = (document.getElementById('order-service-filter') || {}).value || '';
-    var status = (document.getElementById('order-status-filter') || {}).value || '';
+    var q         = (document.getElementById('order-search') || {}).value || '';
+    var svc       = (document.getElementById('order-service-filter') || {}).value || '';
+    var status    = (document.getElementById('order-status-filter') || {}).value || '';
+    var dateFrom  = (document.getElementById('order-date-from') || {}).value || '';
+    var dateTo    = (document.getElementById('order-date-to') || {}).value || '';
 
     q = q.toLowerCase();
     svc = svc.toLowerCase();
+
+    // Parse date boundaries (include full day for dateTo)
+    var fromMs = dateFrom ? new Date(dateFrom).getTime() : null;
+    var toMs   = dateTo   ? new Date(dateTo + 'T23:59:59').getTime() : null;
 
     var filtered = allOrders.filter(function(o) {
       var customerName = (o.customers && o.customers.users && o.customers.users.full_name) || '';
       var serviceName  = (o.services && o.services.name) || '';
       var orderCode    = '#DH-' + String(o.order_id).padStart(4, '0');
 
-      // matchQ: empty = show all
+      // Text search
       var matchQ = !q || customerName.toLowerCase().includes(q) || serviceName.toLowerCase().includes(q) || orderCode.toLowerCase().includes(q);
-      // matchSvc: empty value = show all
+      // Service filter
       var matchSvc = !svc || serviceName.toLowerCase().includes(svc);
-      // matchStatus: empty value = show all, else match DB status code
+      // Status filter
       var matchStatus = !status || o.status === status;
+      // Date range filter (dựa trên scheduled_time hoặc created_at)
+      var orderDate = new Date(o.scheduled_time || o.created_at).getTime();
+      var matchDate = (!fromMs || orderDate >= fromMs) && (!toMs || orderDate <= toMs);
 
-      return matchQ && matchSvc && matchStatus;
+      return matchQ && matchSvc && matchStatus && matchDate;
     });
 
     renderTable(filtered);
@@ -815,11 +829,23 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
   }
 
   /* Attach filter events */
-  ['order-search', 'order-service-filter', 'order-status-filter'].forEach(function(id) {
+  ['order-search', 'order-service-filter', 'order-status-filter', 'order-date-from', 'order-date-to'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', applyFilters);
     if (el) el.addEventListener('change', applyFilters);
   });
+
+  /* Clear all filters button */
+  var clearBtn = document.getElementById('btn-clear-filters');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+      var ids = ['order-search','order-date-from','order-date-to'];
+      ids.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      var selIds = ['order-service-filter','order-status-filter'];
+      selIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+      applyFilters();
+    });
+  }
 
   /* Filter button */
   var filterBtn = document.querySelector('button.bg-primary[class*="Loc"], button[class*="Loc kết quả"]');
