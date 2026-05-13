@@ -237,12 +237,13 @@
       <div class="flex items-center gap-2 bg-white rounded-xl px-4 py-2.5 shadow-sm border border-outline-variant/20">
         <span class="material-symbols-outlined text-sm text-on-surface-variant">filter_list</span>
         <select id="tx-type-filter" class="bg-transparent border-none text-body-sm focus:ring-0 outline-none cursor-pointer pr-1">
-          <option value="">Tat ca giao dich</option>
-          <option value="TOPUP">Nap tien</option>
-          <option value="PAYMENT">Thanh toan</option>
-          <option value="REFUND">Hoan tien</option>
-          <option value="WITHDRAWAL">Rut tien</option>
-          <option value="EARNING">Thu nhap Tasker</option>
+          <option value="">Tất cả giao dịch</option>
+          <option value="NAP">Nạp tiền (TOPUP/DEPOSIT)</option>
+          <option value="THANHTOAN">Thanh toán (PAYMENT/CHARGE/FEE)</option>
+          <option value="HOAN">Hoàn tiền (REFUND)</option>
+          <option value="RUT">Rút tiền (WITHDRAWAL/WITHDRAW)</option>
+          <option value="THUNHAP">Thu nhập (EARNING/INCOME/COMMISSION)</option>
+          <option value="BONUS">Thưởng (BONUS)</option>
         </select>
       </div>
       <span id="tx-count" class="text-body-sm text-on-surface-variant"></span>
@@ -561,16 +562,28 @@
   }
 
   var TYPE_MAP = {
-    'TOPUP': { label: 'Nạp tiền', cls: 'bg-green-100 text-green-700' },
-    'PAYMENT': { label: 'Thanh toán', cls: 'bg-blue-100 text-blue-700' },
-    'REFUND': { label: 'Hoàn tiền', cls: 'bg-yellow-100 text-yellow-700' },
-    'WITHDRAWAL': { label: 'Rút tiền', cls: 'bg-purple-100 text-purple-700' },
-    'EARNING': { label: 'Thu nhập', cls: 'bg-teal-100 text-teal-700' },
+    // Standard types
+    'TOPUP':      { label: 'Nạp tiền',    cls: 'bg-green-100 text-green-700' },
+    'DEPOSIT':    { label: 'Nạp tiền',    cls: 'bg-green-100 text-green-700' },
+    'PAYMENT':    { label: 'Thanh toán', cls: 'bg-blue-100 text-blue-700' },
+    'CHARGE':     { label: 'Thanh toán', cls: 'bg-blue-100 text-blue-700' },
+    'REFUND':     { label: 'Hoàn tiền',  cls: 'bg-yellow-100 text-yellow-700' },
+    'WITHDRAWAL': { label: 'Rút tiền',  cls: 'bg-purple-100 text-purple-700' },
+    'WITHDRAW':   { label: 'Rút tiền',  cls: 'bg-purple-100 text-purple-700' },
+    'EARNING':    { label: 'Thu nhập',  cls: 'bg-teal-100 text-teal-700' },
+    'INCOME':     { label: 'Thu nhập',  cls: 'bg-teal-100 text-teal-700' },
+    'FEE':        { label: 'Phí dịch vụ', cls: 'bg-orange-100 text-orange-700' },
+    'COMMISSION': { label: 'Hoa hồng', cls: 'bg-indigo-100 text-indigo-700' },
+    'TRANSFER':   { label: 'Chuyển tiền', cls: 'bg-pink-100 text-pink-700' },
+    'BONUS':      { label: 'Thưởng',     cls: 'bg-amber-100 text-amber-700' },
   };
   var STATUS_MAP = {
     'COMPLETED': { dot: 'bg-green-500', label: 'Thành công' },
+    'SUCCESS':   { dot: 'bg-green-500', label: 'Thành công' },
     'PENDING':   { dot: 'bg-orange-400', label: 'Đang xử lý' },
+    'PROCESSING':{ dot: 'bg-orange-400', label: 'Đang xử lý' },
     'FAILED':    { dot: 'bg-red-500', label: 'Thất bại' },
+    'CANCELLED': { dot: 'bg-gray-400', label: 'Đã hủy' },
   };
 
   var allTransactions = [];
@@ -613,16 +626,33 @@
   }
 
   // ---- Filter ----
-  var filterSelect = document.getElementById('tx-type-filter');
-  if (filterSelect) {
-    filterSelect.addEventListener('change', function() {
-      var val = filterSelect.value;
-      var filtered = val ? allTransactions.filter(function(t) { return t.type === val; }) : allTransactions;
-      renderTxTable(filtered);
-      var countEl = document.getElementById('tx-count');
-      if (countEl) countEl.textContent = 'Hiển thị ' + filtered.length + ' giao dịch';
-    });
+  var GROUP_FILTER = {
+    'NAP':      ['TOPUP', 'DEPOSIT'],
+    'THANHTOAN':['PAYMENT', 'CHARGE', 'FEE'],
+    'HOAN':     ['REFUND'],
+    'RUT':      ['WITHDRAWAL', 'WITHDRAW'],
+    'THUNHAP':  ['EARNING', 'INCOME', 'COMMISSION'],
+    'BONUS':    ['BONUS'],
+  };
+
+  function applyFilter() {
+    var val = (document.getElementById('tx-type-filter') || {}).value || '';
+    var filtered;
+    if (!val) {
+      filtered = allTransactions;
+    } else if (GROUP_FILTER[val]) {
+      var allowed = GROUP_FILTER[val];
+      filtered = allTransactions.filter(function(t) { return allowed.indexOf(t.type) !== -1; });
+    } else {
+      filtered = allTransactions.filter(function(t) { return t.type === val; });
+    }
+    renderTxTable(filtered);
+    var countEl = document.getElementById('tx-count');
+    if (countEl) countEl.textContent = 'Hiển thị ' + filtered.length + ' / ' + allTransactions.length + ' giao dịch';
   }
+
+  var filterSelect = document.getElementById('tx-type-filter');
+  if (filterSelect) filterSelect.addEventListener('change', applyFilter);
 
   // ---- Search ----
   var searchInput = document.querySelector('input[placeholder*="Tìm giao dịch"]');
@@ -661,11 +691,8 @@
     if (elPending)  elPending.textContent   = fmtVND(stats.pendingWithdrawal);
     if (elPaid)     elPaid.textContent      = fmtVND(stats.paidThisMonth);
 
-    // Tx count
-    var countEl = document.getElementById('tx-count');
-    if (countEl) countEl.textContent = 'Hiển thị ' + allTransactions.length + ' giao dịch';
-
-    renderTxTable(allTransactions);
+    // Render với filter hiện tại
+    applyFilter();
 
     // ---- Withdrawals ----
     var pendingWd = (withdrawals || []).filter(function(w) { return w.status === 'PENDING'; });
