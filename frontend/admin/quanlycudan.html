@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="vi"><head>
 <meta charset="utf-8"/>
@@ -225,31 +225,31 @@
 <!-- Stats Row -->
 <div class="grid grid-cols-3 gap-gutter">
 <div class="bg-surface-container-lowest p-stack_md rounded-xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" data-icon="group">group</span>
-</div>
-<div>
-<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Tổng cư dân</p>
-<h3 class="text-on-surface font-title-sm text-title-sm">1,248</h3>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-stack_md rounded-xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
-</div>
-<div>
-<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Hoạt động</p>
-<h3 class="text-on-surface font-title-sm text-title-sm">1,102</h3>
-</div>
+  <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+    <span class="material-symbols-outlined">group</span>
+  </div>
+  <div>
+    <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Tổng cư dân</p>
+    <h3 id="stat-total" class="text-on-surface font-title-sm text-title-sm">...</h3>
+  </div>
 </div>
 <div class="bg-surface-container-lowest p-stack_md rounded-xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined" data-icon="add_reaction">add_reaction</span>
+  <div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary">
+    <span class="material-symbols-outlined">check_circle</span>
+  </div>
+  <div>
+    <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Hoạt động</p>
+    <h3 id="stat-active" class="text-on-surface font-title-sm text-title-sm">...</h3>
+  </div>
 </div>
-<div>
-<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Mới tháng này</p>
-<h3 class="text-on-surface font-title-sm text-title-sm">43</h3>
-</div>
+<div class="bg-surface-container-lowest p-stack_md rounded-xl shadow-sm flex items-center gap-4">
+  <div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary">
+    <span class="material-symbols-outlined">add_reaction</span>
+  </div>
+  <div>
+    <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Mới tháng này</p>
+    <h3 id="stat-new" class="text-on-surface font-title-sm text-title-sm">...</h3>
+  </div>
 </div>
 </div>
 <!-- Toolbar -->
@@ -291,8 +291,9 @@
 <th class="p-4 font-label-bold text-on-surface-variant">THAO TÁC</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container-low">
-<!-- Row 1 -->
+<tbody id="cudan-tbody" class="divide-y divide-surface-container-low">
+  <tr><td colspan="8" class="text-center py-10 text-on-surface-variant">Đang tải dữ liệu...</td></tr>
+</tbody>
 <tr class="hover:bg-background transition-colors group">
 <td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
 <td class="p-4">
@@ -478,7 +479,7 @@
 </table>
 <!-- Pagination -->
 <div class="p-4 flex items-center justify-between border-t border-outline-variant bg-surface-container-lowest">
-<p class="text-body-sm text-on-surface-variant">Hiển thị 1-7 trong số 1,248 cư dân</p>
+<p id="cudan-pag-info" class="text-body-sm text-on-surface-variant">Đang tải...</p>
 <div class="flex items-center gap-1">
 <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors">
 <span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
@@ -496,109 +497,58 @@
 </div>
 </div>
 <!-- Resident Detail Panel (Right Drawer style) -->
-<aside class="w-[340px] bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col border-l border-outline-variant/10">
+<aside id="cudan-detail-panel" class="w-[340px] bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col border-l border-outline-variant/10 hidden">
 <div class="p-6 border-b border-outline-variant/10 flex items-center justify-between">
-<h3 class="font-title-sm text-title-sm text-on-surface">Chi tiết cư dân</h3>
-<button class="text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined" data-icon="close">close</span>
-</button>
+  <h3 class="font-title-sm text-title-sm text-on-surface">Chi tiết cư dân</h3>
+  <button id="btn-close-detail" class="text-on-surface-variant hover:text-primary transition-colors">
+    <span class="material-symbols-outlined">close</span>
+  </button>
 </div>
 <div class="p-6 flex flex-col items-center text-center">
-<div class="relative mb-4">
-<img class="w-24 h-24 rounded-full border-4 border-surface-container-low shadow-sm" data-alt="A detailed, high-resolution portrait of a friendly Vietnamese woman in her late 20s, styled for a professional corporate directory. She has soft, natural makeup and a professional smile. The lighting is bright and airy, reflecting a modern light-mode interface with subtle warm grey tones and soft orange accents in the background blurred elements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-RBaXiQaPgxuj62mGrYsjxW-pMU_jCOzWhy7XHS4Wn4_NLMx9zwN-AfC-0H0dgNv6Ci2xqhTKUv6Wx5dlnsedQqazLoGJTCg3XiG7ehri-nMTQdayZTZmNmoThJtNgS6NclI0xXfQTZfLTjRnbYXi36jjg_fPp4xp5gus6jhwyaSggmGTlwE7hjURwvf-W1DeC6zl34L1pwlrJHCBZgI5tye_WnGtmCGiF9NdZVk7AQ4EsyL6yZqNU-gY_bF6o5A_I3cxNowFbdc"/>
-<span class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-surface-container-lowest rounded-full"></span>
-</div>
-<h4 class="font-title-sm text-title-sm text-on-surface">Nguyễn An</h4>
-<p class="text-body-sm text-on-surface-variant">Cư dân từ tháng 01, 2023</p>
-<div class="w-full mt-6 space-y-4 text-left">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="mail">mail</span>
-<span class="text-body-sm text-on-surface">an.nguyen@email.com</span>
-</div>
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="call">call</span>
-<span class="text-body-sm text-on-surface">0901 234 567</span>
-</div>
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-primary text-sm mt-0.5" data-icon="location_on">location_on</span>
-<span class="text-body-sm text-on-surface">Căn hộ A-12.04, Tòa Park 1, Vinhomes Central Park, Bình Thạnh, TP.HCM</span>
-</div>
-</div>
+  <div class="relative mb-4">
+    <div class="w-24 h-24 rounded-full border-4 border-surface-container-low shadow-sm bg-primary/10 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary text-[48px]">person</span>
+    </div>
+    <span id="detail-status-dot" class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-surface-container-lowest rounded-full hidden"></span>
+  </div>
+  <h4 id="detail-name" class="font-title-sm text-title-sm text-on-surface">---</h4>
+  <p id="detail-since" class="text-body-sm text-on-surface-variant">Cư dân từ ---</p>
+  <div class="w-full mt-6 space-y-4 text-left">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary text-sm">call</span>
+      <span id="detail-phone" class="text-body-sm text-on-surface">---</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary text-sm">location_on</span>
+      <span id="detail-address" class="text-body-sm text-on-surface">---</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary text-sm">badge</span>
+      <span id="detail-status-label" class="text-body-sm text-on-surface">---</span>
+    </div>
+  </div>
 </div>
 <div class="px-6 py-4 bg-surface-container-low flex justify-between">
-<div>
-<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Tổng chi tiêu</p>
-<p class="font-title-sm text-title-sm text-primary">4,250,000đ</p>
-</div>
-<div class="text-right">
-<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Đơn hàng</p>
-<p class="font-title-sm text-title-sm text-on-surface">12</p>
-</div>
+  <div>
+    <p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Tổng đơn hàng</p>
+    <p id="detail-orders" class="font-title-sm text-title-sm text-primary">0</p>
+  </div>
 </div>
 <div class="flex-1 p-6 overflow-y-auto">
-<h5 class="font-label-bold text-on-surface-variant uppercase tracking-widest text-[10px] mb-4">LỊCH SỬ DỊCH VỤ GẦN ĐÂY</h5>
-<div class="space-y-4">
-<!-- History Item 1 -->
-<div class="flex gap-3">
-<div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-primary flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]" data-icon="cleaning_services">cleaning_services</span>
-</div>
-<div class="flex-1 min-w-0">
-<p class="text-body-sm font-medium text-on-surface truncate">Dọn dẹp nhà cửa (3h)</p>
-<p class="text-[11px] text-on-surface-variant">12/10/2023 • Hoàn thành</p>
-</div>
-<p class="text-body-sm font-medium text-on-surface">450k</p>
-</div>
-<!-- History Item 2 -->
-<div class="flex gap-3">
-<div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-tertiary flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]" data-icon="local_laundry_service">local_laundry_service</span>
-</div>
-<div class="flex-1 min-w-0">
-<p class="text-body-sm font-medium text-on-surface truncate">Giặt ủi cao cấp</p>
-<p class="text-[11px] text-on-surface-variant">08/10/2023 • Hoàn thành</p>
-</div>
-<p class="text-body-sm font-medium text-on-surface">220k</p>
-</div>
-<!-- History Item 3 -->
-<div class="flex gap-3">
-<div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]" data-icon="shopping_basket">shopping_basket</span>
-</div>
-<div class="flex-1 min-w-0">
-<p class="text-body-sm font-medium text-on-surface truncate">Đi chợ hộ (Thực phẩm)</p>
-<p class="text-[11px] text-on-surface-variant">05/10/2023 • Hoàn thành</p>
-</div>
-<p class="text-body-sm font-medium text-on-surface">850k</p>
-</div>
-</div>
-<button class="w-full mt-6 py-2 border border-outline-variant text-on-surface-variant font-label-bold rounded-xl hover:bg-surface-container-low transition-colors">
-                        Xem tất cả giao dịch
-                    </button>
+  <h5 class="font-label-bold text-on-surface-variant uppercase tracking-widest text-[10px] mb-4">LỊCH SỬ ĐƠN HÀNG GẦN ĐÂY</h5>
+  <div id="detail-orders-list" class="space-y-3">
+    <p class="text-body-sm text-on-surface-variant text-center">Chọn một cư dân để xem lịch sử</p>
+  </div>
 </div>
 <div class="p-6 border-t border-outline-variant/10 flex gap-3">
-<button class="flex-1 py-3 bg-primary-container text-white rounded-xl font-label-bold flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
-                        Sửa thông tin
-                    </button>
-<button class="w-12 h-12 flex items-center justify-center border border-error text-error rounded-xl hover:bg-error-container transition-colors">
-<span class="material-symbols-outlined" data-icon="lock">lock</span>
-</button>
+  <button id="detail-btn-lock" class="flex-1 py-3 bg-error-container text-error rounded-xl font-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition">
+    <span class="material-symbols-outlined text-sm">lock</span>
+    Khóa tài khoản
+  </button>
 </div>
 </aside>
 </div>
 </main>
-
-<script>
-document.querySelectorAll('table tbody tr').forEach(function(row) {
-  row.style.cursor = 'pointer';
-  row.addEventListener('click', function(e) {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-    var panel = document.querySelector('[data-panel], [id*="detail"]');
-    if (panel) panel.classList.remove('hidden');
-  });
-});
-</script>
 <!-- CHIOI-JS-INJECT -->
 <script>
 (function() {
@@ -799,4 +749,208 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
 
 })();
 </script><!-- END-CHIOI-JS-INJECT -->
+
+<script src="../shared/api.js"></script>
+<script>
+(async function() {
+  if (!ChiOiAuth.requireAuth('../Khachhang/dangnhap.html')) return;
+
+  var allCustomers = [];
+  var allOrders = [];
+  var currentUserId = null;
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('vi-VN');
+  }
+
+  function renderTable(customers) {
+    var tbody = document.getElementById('cudan-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!customers || customers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 text-on-surface-variant">Không có cư dân nào</td></tr>';
+      var pag = document.getElementById('cudan-pag-info');
+      if (pag) pag.textContent = '0 cư dân';
+      return;
+    }
+
+    customers.forEach(function(u, idx) {
+      var isActive = u.status === 'ACTIVE';
+      var statusHtml = isActive
+        ? '<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 font-label-md text-[10px]">HOẠT ĐỘNG</span>'
+        : '<span class="px-3 py-1 rounded-full bg-error-container text-error font-label-md text-[10px]">ĐÃ KHÓA</span>';
+      var orders = allOrders.filter(function(o) { return o.customers && o.customers.user_id === u.user_id; });
+
+      var tr = document.createElement('tr');
+      tr.className = (idx % 2 ? 'bg-background ' : '') + 'hover:bg-surface-container-low transition-colors group cursor-pointer';
+      tr.innerHTML =
+        '<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>' +
+        '<td class="p-4"><div class="flex items-center gap-3">' +
+          '<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">person</span></div>' +
+          '<div><p class="font-label-bold text-on-surface">' + (u.full_name || '—') + '</p>' +
+          '<p class="text-body-sm text-on-surface-variant">' + (u.phone || '—') + '</p></div></div></td>' +
+        '<td class="p-4 text-body-sm">' + (u.phone || '—') + '</td>' +
+        '<td class="p-4 text-body-sm">' + (u.address || '—') + '</td>' +
+        '<td class="p-4 text-body-sm text-center">' + orders.length + '</td>' +
+        '<td class="p-4 text-body-sm text-right font-medium">—</td>' +
+        '<td class="p-4">' + statusHtml + '</td>' +
+        '<td class="p-4"><div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">' +
+          '<button class="view-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Xem hồ sơ" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">visibility</span></button>' +
+          (isActive
+            ? '<button class="lock-btn text-error hover:bg-error-container p-1 rounded-lg" title="Khóa" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock</span></button>'
+            : '<button class="unlock-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Mở khóa" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock_open</span></button>') +
+        '</div></td>';
+
+      tr.addEventListener('click', function(e) {
+        if (e.target.closest('button') || e.target.tagName === 'INPUT') return;
+        openDetail(u);
+      });
+      tbody.appendChild(tr);
+    });
+
+    // bind action buttons
+    tbody.querySelectorAll('.view-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var u = customers.find(function(c) { return c.user_id == btn.getAttribute('data-uid'); });
+        if (u) openDetail(u);
+      });
+    });
+
+    var pagEl = document.getElementById('cudan-pag-info');
+    if (pagEl) pagEl.textContent = 'Hiển thị ' + customers.length + ' cư dân';
+  }
+
+  function openDetail(u) {
+    currentUserId = u.user_id;
+    var panel = document.getElementById('cudan-detail-panel');
+    if (!panel) return;
+    panel.classList.remove('hidden');
+
+    document.getElementById('detail-name').textContent = u.full_name || '—';
+    document.getElementById('detail-since').textContent = 'Cư dân từ ' + fmtDate(u.created_at);
+    document.getElementById('detail-phone').textContent = u.phone || '—';
+    document.getElementById('detail-address').textContent = u.address || '—';
+    document.getElementById('detail-status-label').textContent = u.status === 'ACTIVE' ? 'Đang hoạt động' : 'Đã khóa';
+
+    var dot = document.getElementById('detail-status-dot');
+    if (dot) {
+      dot.classList.remove('hidden', 'bg-green-500', 'bg-error');
+      dot.classList.add(u.status === 'ACTIVE' ? 'bg-green-500' : 'bg-error');
+    }
+
+    var orders = allOrders.filter(function(o) { return o.customers && o.customers.user_id === u.user_id; });
+    document.getElementById('detail-orders').textContent = orders.length + ' đơn';
+
+    var listEl = document.getElementById('detail-orders-list');
+    if (listEl) {
+      listEl.innerHTML = '';
+      if (orders.length === 0) {
+        listEl.innerHTML = '<p class="text-body-sm text-on-surface-variant text-center">Chưa có đơn hàng nào</p>';
+      } else {
+        orders.slice(0, 5).forEach(function(o) {
+          var svcName = (o.services && o.services.name) ? o.services.name : 'Dịch vụ';
+          var statusText = {'COMPLETED':'Hoàn thành','CANCELLED':'Đã hủy','IN_PROGRESS':'Đang làm','ACCEPTED':'Đã nhận','PENDING':'Chờ'}[o.status] || o.status;
+          var item = document.createElement('div');
+          item.className = 'flex gap-3 items-start';
+          item.innerHTML =
+            '<div class="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center text-primary flex-shrink-0"><span class="material-symbols-outlined text-[18px]">receipt_long</span></div>' +
+            '<div class="flex-1 min-w-0"><p class="text-body-sm font-medium text-on-surface truncate">' + svcName + '</p>' +
+            '<p class="text-[11px] text-on-surface-variant">' + fmtDate(o.created_at) + ' • ' + statusText + '</p></div>';
+          listEl.appendChild(item);
+        });
+      }
+    }
+
+    var lockBtn = document.getElementById('detail-btn-lock');
+    if (lockBtn) {
+      lockBtn.innerHTML = u.status === 'ACTIVE'
+        ? '<span class="material-symbols-outlined text-sm">lock</span> Khóa tài khoản'
+        : '<span class="material-symbols-outlined text-sm">lock_open</span> Mở khóa tài khoản';
+      lockBtn.className = u.status === 'ACTIVE'
+        ? 'flex-1 py-3 bg-error-container text-error rounded-xl font-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition'
+        : 'flex-1 py-3 bg-green-100 text-green-700 rounded-xl font-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition';
+    }
+  }
+
+  // Close panel
+  var closeBtn = document.getElementById('btn-close-detail');
+  if (closeBtn) closeBtn.addEventListener('click', function() {
+    var panel = document.getElementById('cudan-detail-panel');
+    if (panel) panel.classList.add('hidden');
+  });
+
+  // Lock button in detail panel
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('#detail-btn-lock');
+    if (!btn || !currentUserId) return;
+    if (!confirm('Thay đổi trạng thái tài khoản này?')) return;
+    var u = allCustomers.find(function(c) { return c.user_id === currentUserId; });
+    if (!u) return;
+    var newStatus = u.status === 'ACTIVE' ? 'BANNED' : 'ACTIVE';
+    showLoading();
+    apiFetch('/api/admin/users/' + currentUserId + '/status', { method: 'PATCH', body: JSON.stringify({ status: newStatus }) })
+      .then(function() { hideLoading(); showToastMsg('✅ Đã cập nhật trạng thái!'); setTimeout(function() { location.reload(); }, 1500); })
+      .catch(function(e) { hideLoading(); showToastMsg('❌ Lỗi: ' + e.message); });
+  });
+
+  // Search
+  var searchInput = document.querySelector('input[placeholder*="Tìm"]');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var q = searchInput.value.toLowerCase();
+      filterAndRender(q);
+    });
+  }
+
+  function filterAndRender(q) {
+    var filtered = allCustomers;
+    if (q) filtered = filtered.filter(function(u) {
+      return (u.full_name && u.full_name.toLowerCase().includes(q)) ||
+             (u.phone && u.phone.includes(q));
+    });
+    renderTable(filtered);
+  }
+
+  // Load data
+  showLoading();
+  try {
+    var results = await Promise.all([
+      apiFetch('/api/admin/users'),
+      apiFetch('/api/admin/orders')
+    ]);
+    hideLoading();
+    var users = results[0] || [];
+    allOrders = results[1] || [];
+
+    allCustomers = users.filter(function(u) { return u.role === 'CUSTOMER'; });
+
+    var now = new Date();
+    var activeCount = allCustomers.filter(function(u) { return u.status === 'ACTIVE'; }).length;
+    var newThisMonth = allCustomers.filter(function(u) {
+      var d = new Date(u.created_at);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+
+    var statTotal = document.getElementById('stat-total');
+    var statActive = document.getElementById('stat-active');
+    var statNew = document.getElementById('stat-new');
+    if (statTotal) statTotal.textContent = allCustomers.length;
+    if (statActive) statActive.textContent = activeCount;
+    if (statNew) statNew.textContent = '+' + newThisMonth;
+
+    renderTable(allCustomers);
+
+    // Logout
+    var logoutBtn = document.querySelector('button[title="Đăng xuất"]');
+    if (logoutBtn) logoutBtn.addEventListener('click', function() { ChiOiAuth.logout('../Khachhang/dangnhap.html'); });
+
+  } catch (e) {
+    hideLoading();
+    showToastMsg('❌ Lỗi tải dữ liệu: ' + e.message);
+    console.error('[CưDân]', e);
+  }
+})();
+</script>
 </body></html>
