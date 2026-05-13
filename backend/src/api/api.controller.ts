@@ -12,6 +12,13 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
 export class ApiController {
   constructor(private apiService: ApiService) {}
 
+  @Get('users/profile')
+  @Roles('CUSTOMER', 'TASKER')
+  @ApiOperation({ summary: 'Lấy thông tin hồ sơ cá nhân' })
+  async getProfile(@Request() req) {
+    return this.apiService.getUserProfile(req.user.userId);
+  }
+
   @Put('users/profile')
   @Roles('CUSTOMER', 'TASKER')
   @ApiOperation({ summary: 'Cập nhật hồ sơ cá nhân' })

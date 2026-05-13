@@ -24,6 +24,9 @@ let ApiController = class ApiController {
     constructor(apiService) {
         this.apiService = apiService;
     }
+    async getProfile(req) {
+        return this.apiService.getUserProfile(req.user.userId);
+    }
     async updateProfile(req, body) {
         return this.apiService.updateUserProfile(req.user.userId, {
             full_name: body.full_name,
@@ -120,6 +123,15 @@ let ApiController = class ApiController {
     }
 };
 exports.ApiController = ApiController;
+__decorate([
+    (0, common_1.Get)('users/profile'),
+    (0, roles_decorator_1.Roles)('CUSTOMER', 'TASKER'),
+    (0, swagger_1.ApiOperation)({ summary: 'Lấy thông tin hồ sơ cá nhân' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Put)('users/profile'),
     (0, roles_decorator_1.Roles)('CUSTOMER', 'TASKER'),

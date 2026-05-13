@@ -254,6 +254,22 @@
       var initials = user.full_name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
       avatarEl.innerHTML = initials;
     }
+    
+    // Gọi API lấy dữ liệu mới nhất từ backend
+    try {
+      var freshUser = await apiFetch('/api/users/profile');
+      if (freshUser) {
+        user = Object.assign(user, freshUser);
+        localStorage.setItem('chioi_user', JSON.stringify(user));
+        document.getElementById('user-name').textContent = user.full_name || 'Chưa cập nhật';
+        document.getElementById('user-phone').textContent = user.phone || '...';
+        if (user.full_name) {
+          avatarEl.innerHTML = user.full_name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+        }
+      }
+    } catch (e) {
+      console.warn('Không thể tải hồ sơ mới:', e);
+    }
   }
 
   // ===== Lỗi 4+11 FIX: Chỉnh sửa hồ sơ - đầy đủ giới tính, email, địa chỉ =====

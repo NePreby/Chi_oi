@@ -2,6 +2,19 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class ApiService {
     private prisma;
     constructor(prisma: PrismaService);
+    getUserProfile(userId: number): Promise<{
+        address: string | null;
+        bio: string | null;
+        user_id: number;
+        phone: string;
+        full_name: string;
+        email: string | null;
+        gender: string | null;
+        avatar_url: string | null;
+        role: string;
+        status: string | null;
+        created_at: Date | null;
+    }>;
     updateUserProfile(userId: number, data: {
         full_name?: string;
         gender?: string;
@@ -69,9 +82,9 @@ export declare class ApiService {
                 updated_at: Date | null;
             };
         } & {
+            customer_id: number;
             default_address: string | null;
             loyalty_points: number | null;
-            customer_id: number;
         };
         services: {
             created_at: Date | null;
@@ -86,11 +99,11 @@ export declare class ApiService {
         status: string | null;
         created_at: Date | null;
         updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
         service_id: number;
         order_id: number;
         order_code: string;
-        customer_id: number;
-        tasker_id: number | null;
         voucher_id: number | null;
         scheduled_time: Date;
         address: string;
@@ -111,17 +124,17 @@ export declare class ApiService {
                 };
             } & {
                 status: string | null;
-                service_id: number;
                 tasker_id: number;
+                service_id: number;
             })[];
         } & {
+            tasker_id: number;
             bio: string | null;
             kyc_status: string | null;
             average_rating: import("@prisma/client-runtime-utils").Decimal | null;
             total_jobs: number | null;
             is_online: boolean | null;
             last_heartbeat: Date | null;
-            tasker_id: number;
         }) | null;
     } & {
         user_id: number;
@@ -141,22 +154,22 @@ export declare class ApiService {
         total_revenue: number | import("@prisma/client-runtime-utils").Decimal;
     }>;
     submitKyc(taskerId: number, kycData: any): Promise<{
+        tasker_id: number;
         bio: string | null;
         kyc_status: string | null;
         average_rating: import("@prisma/client-runtime-utils").Decimal | null;
         total_jobs: number | null;
         is_online: boolean | null;
         last_heartbeat: Date | null;
-        tasker_id: number;
     }>;
     updateTaskerStatus(taskerId: number, isOnline: boolean): Promise<{
+        tasker_id: number;
         bio: string | null;
         kyc_status: string | null;
         average_rating: import("@prisma/client-runtime-utils").Decimal | null;
         total_jobs: number | null;
         is_online: boolean | null;
         last_heartbeat: Date | null;
-        tasker_id: number;
     }>;
     createTicket(userId: number, subject: string, description: string): Promise<{
         user_id: number;
@@ -165,25 +178,25 @@ export declare class ApiService {
         updated_at: Date | null;
         description: string;
         order_id: number | null;
-        admin_id: number | null;
         ticket_code: string;
         subject: string;
         priority: string | null;
         ticket_id: number;
+        admin_id: number | null;
     }>;
     approveTaskerKyc(adminId: number, taskerId: number, status: string): Promise<{
+        tasker_id: number;
         bio: string | null;
         kyc_status: string | null;
         average_rating: import("@prisma/client-runtime-utils").Decimal | null;
         total_jobs: number | null;
         is_online: boolean | null;
         last_heartbeat: Date | null;
-        tasker_id: number;
     }>;
     approveTaskerService(adminId: number, taskerId: number, serviceId: number, status: string): Promise<{
         status: string | null;
-        service_id: number;
         tasker_id: number;
+        service_id: number;
     }>;
     getTaskerServicesPending(): Promise<({
         taskers: {
@@ -192,13 +205,13 @@ export declare class ApiService {
                 full_name: string;
             };
         } & {
+            tasker_id: number;
             bio: string | null;
             kyc_status: string | null;
             average_rating: import("@prisma/client-runtime-utils").Decimal | null;
             total_jobs: number | null;
             is_online: boolean | null;
             last_heartbeat: Date | null;
-            tasker_id: number;
         };
         services: {
             name: string;
@@ -206,8 +219,8 @@ export declare class ApiService {
         };
     } & {
         status: string | null;
-        service_id: number;
         tasker_id: number;
+        service_id: number;
     })[]>;
     manageService(action: string, data: any, serviceId?: number): Promise<{
         created_at: Date | null;
@@ -229,13 +242,13 @@ export declare class ApiService {
     approveWithdrawal(adminId: number, transactionId: number, status: string): Promise<{
         status: string | null;
         created_at: Date | null;
-        wallet_id: number;
         description: string | null;
-        order_id: number | null;
-        type: string;
+        wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
+        type: string;
+        order_id: number | null;
     }>;
     resolveTicket(adminId: number, ticketId: number, status: string): Promise<{
         user_id: number;
@@ -244,11 +257,11 @@ export declare class ApiService {
         updated_at: Date | null;
         description: string;
         order_id: number | null;
-        admin_id: number | null;
         ticket_code: string;
         subject: string;
         priority: string | null;
         ticket_id: number;
+        admin_id: number | null;
     }>;
     getAdminUsers(): Promise<{
         user_id: number;
@@ -258,24 +271,24 @@ export declare class ApiService {
         status: string | null;
         created_at: Date | null;
         taskers: {
+            tasker_id: number;
             bio: string | null;
             kyc_status: string | null;
             average_rating: import("@prisma/client-runtime-utils").Decimal | null;
             total_jobs: number | null;
             is_online: boolean | null;
             last_heartbeat: Date | null;
-            tasker_id: number;
         } | null;
     }[]>;
     getAdminOrders(): Promise<{
         status: string | null;
         created_at: Date | null;
         updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
         service_id: number;
         order_id: number;
         order_code: string;
-        customer_id: number;
-        tasker_id: number | null;
         voucher_id: number | null;
         scheduled_time: Date;
         address: string;
@@ -292,11 +305,11 @@ export declare class ApiService {
         status: string | null;
         created_at: Date | null;
         updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
         service_id: number;
         order_id: number;
         order_code: string;
-        customer_id: number;
-        tasker_id: number | null;
         voucher_id: number | null;
         scheduled_time: Date;
         address: string;
@@ -330,22 +343,22 @@ export declare class ApiService {
         updated_at: Date | null;
         description: string;
         order_id: number | null;
-        admin_id: number | null;
         ticket_code: string;
         subject: string;
         priority: string | null;
         ticket_id: number;
+        admin_id: number | null;
     })[]>;
     getAdminWithdrawals(): Promise<{
         status: string | null;
         created_at: Date | null;
-        wallet_id: number;
         description: string | null;
-        order_id: number | null;
-        type: string;
+        wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
+        type: string;
+        order_id: number | null;
     }[]>;
     getAvailableOrdersForTasker(taskerId: number): Promise<({
         customers: {
@@ -353,9 +366,9 @@ export declare class ApiService {
                 full_name: string;
             };
         } & {
+            customer_id: number;
             default_address: string | null;
             loyalty_points: number | null;
-            customer_id: number;
         };
         services: {
             created_at: Date | null;
@@ -370,11 +383,11 @@ export declare class ApiService {
         status: string | null;
         created_at: Date | null;
         updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
         service_id: number;
         order_id: number;
         order_code: string;
-        customer_id: number;
-        tasker_id: number | null;
         voucher_id: number | null;
         scheduled_time: Date;
         address: string;
@@ -400,7 +413,7 @@ export declare class ApiService {
     }[]>;
     registerTaskerService(taskerId: number, serviceId: number): Promise<{
         status: string | null;
-        service_id: number;
         tasker_id: number;
+        service_id: number;
     }>;
 }

@@ -16,6 +16,11 @@ export class OrdersService {
       await this.prisma.$executeRawUnsafe(`ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check;`);
       await this.prisma.$executeRawUnsafe(`ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('PENDING', 'SEARCHING', 'ACCEPTED', 'TASKER_ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'));`);
       console.log('[Database] Fixed missing TASKER_ARRIVED constraint in orders table.');
+      
+      // FIX missing FEE constraint in transactions table
+      await this.prisma.$executeRawUnsafe(`ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check;`);
+      await this.prisma.$executeRawUnsafe(`ALTER TABLE transactions ADD CONSTRAINT transactions_type_check CHECK (type IN ('TOP_UP', 'WITHDRAW', 'PAYMENT', 'EARNING', 'REFUND', 'BONUS', 'FEE'));`);
+      console.log('[Database] Fixed missing FEE constraint in transactions table.');
     } catch (e) {
       console.log('[Database] Constraint fix check skipped or failed.');
     }
@@ -121,22 +126,26 @@ export class OrdersService {
         console.warn('[Order] Không trừ được tiền ví KH:', e.message);
       }
 
-      if (order.payment_method === 'CASH') {
-        await this.walletsService.addTransaction(
-          order.tasker_id!,
-          -Number(order.platform_fee),
-          'FEE',
-          order.order_id,
-          'Thu phí nền tảng cho đơn hàng trả tiền mặt'
-        );
-      } else {
-        await this.walletsService.addTransaction(
-          order.tasker_id!,
-          Number(order.tasker_earnings),
-          'EARNING',
-          order.order_id,
-          'Thanh toán thu nhập đơn hàng'
-        );
+      try {
+        if (order.payment_method === 'CASH') {
+          await this.walletsService.addTransaction(
+            order.tasker_id!,
+            -Number(order.platform_fee),
+            'FEE',
+            order.order_id,
+            'Thu phí nền tảng cho đơn hàng trả tiền mặt'
+          );
+        } else {
+          await this.walletsService.addTransaction(
+            order.tasker_id!,
+            Number(order.tasker_earnings),
+            'EARNING',
+            order.order_id,
+            'Thanh toán thu nhập đơn hàng'
+          );
+        }
+      } catch (e) {
+        console.warn('[Order] Không cộng/trừ được tiền ví Tasker:', e.message);
       }
     }
 

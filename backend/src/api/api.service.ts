@@ -6,6 +6,19 @@ export class ApiService {
   constructor(private prisma: PrismaService) {}
 
   // --- User Profile ---
+  async getUserProfile(userId: number) {
+    const user = await this.prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { user_id: true, phone: true, full_name: true, email: true, gender: true, avatar_url: true, role: true, status: true, created_at: true },
+    });
+    if (!user) throw new BadRequestException('Không tìm thấy người dùng');
+
+    const customer = await this.prisma.customers.findUnique({ where: { customer_id: userId } });
+    const tasker = await this.prisma.taskers.findUnique({ where: { tasker_id: userId } });
+
+    return { ...user, address: customer?.default_address || null, bio: tasker?.bio || null };
+  }
+
   async updateUserProfile(userId: number, data: { full_name?: string; gender?: string; email?: string; address?: string; bio?: string }) {
     // Input validation
     if (data.full_name !== undefined && (typeof data.full_name !== 'string' || data.full_name.trim().length === 0)) {
