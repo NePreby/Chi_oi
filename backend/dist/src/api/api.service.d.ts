@@ -283,6 +283,13 @@ export declare class ApiService {
             last_heartbeat: Date | null;
         } | null;
     }[]>;
+    updateUserStatus(adminId: number, userId: number, status: string): Promise<{
+        user_id: number;
+        phone: string;
+        full_name: string;
+        role: string;
+        status: string | null;
+    }>;
     getAdminOrders(): Promise<({
         customers: {
             users: {

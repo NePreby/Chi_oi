@@ -261,10 +261,10 @@
 <option>Quận 7</option>
 <option>Bình Thạnh</option>
 </select>
-<select class="bg-surface-container-low border-outline-variant text-body-sm rounded-xl px-4 py-2 focus:ring-primary focus:border-primary">
-<option>Trạng thái tài khoản</option>
-<option>Hoạt động</option>
-<option>Đã khóa</option>
+<select id="filter-status" class="bg-surface-container-low border-outline-variant text-body-sm rounded-xl px-4 py-2 focus:ring-primary focus:border-primary">
+<option value="">Trạng thái tài khoản</option>
+<option value="ACTIVE">Hoạt động</option>
+<option value="BANNED">Đã khóa</option>
 </select>
 <button class="flex items-center gap-2 text-primary font-label-bold px-4 py-2 hover:bg-surface-container-low rounded-xl transition-colors">
 <span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
@@ -614,7 +614,7 @@
           '<button class="view-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Xem hồ sơ" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">visibility</span></button>' +
           (isActive
             ? '<button class="lock-btn text-error hover:bg-error-container p-1 rounded-lg" title="Kh\u00f3a" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock</span></button>'
-            : '<button class="unlock-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="M\u1edf kh\u00f3a" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock_open</span></button>') +
+            : '<button class="unlock-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Mở khóa" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock_open</span></button>') +
         '</div></td>';
 
       tr.addEventListener('click', function(e) {
@@ -630,6 +630,34 @@
         e.stopPropagation();
         var u = customers.find(function(c) { return c.user_id == btn.getAttribute('data-uid'); });
         if (u) openDetail(u);
+      });
+    });
+
+    // bind lock/unlock buttons in table rows
+    tbody.querySelectorAll('.lock-btn, .unlock-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var uid = parseInt(btn.getAttribute('data-uid'));
+        var u = allCustomers.find(function(c) { return c.user_id === uid; });
+        if (!u) return;
+        var newStatus = u.status === 'ACTIVE' ? 'BANNED' : 'ACTIVE';
+        var action = newStatus === 'BANNED' ? 'Khóa' : 'Mở khóa';
+        if (!confirm(action + ' tài khoản "' + (u.full_name || u.phone) + '"?')) return;
+        showLoading();
+        apiFetch('/api/admin/users/' + uid + '/status', {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus })
+        }).then(function() {
+          hideLoading();
+          showToastMsg('✅ Đã ' + action.toLowerCase() + ' tài khoản!');
+          // Update local data, re-render without reload
+          u.status = newStatus;
+          filterAndRender();
+          if (currentUserId === uid) openDetail(u);
+        }).catch(function(err) {
+          hideLoading();
+          showToastMsg('❌ Lỗi: ' + err.message);
+        });
       });
     });
 
@@ -661,7 +689,6 @@
       .reduce(function(sum, o) { return sum + Number(o.total_price || 0); }, 0);
     document.getElementById('detail-orders').textContent = orders.length + ' đơn';
 
-    // Show spending in detail panel
     var detailSpent = document.getElementById('detail-spent');
     if (detailSpent) detailSpent.textContent = spent > 0 ? spent.toLocaleString('vi-VN') + 'đ' : '—';
 
@@ -704,36 +731,49 @@
   });
 
   // Lock button in detail panel
-  document.addEventListener('click', function(e) {
-    var btn = e.target.closest('#detail-btn-lock');
-    if (!btn || !currentUserId) return;
-    if (!confirm('Thay đổi trạng thái tài khoản này?')) return;
-    var u = allCustomers.find(function(c) { return c.user_id === currentUserId; });
-    if (!u) return;
-    var newStatus = u.status === 'ACTIVE' ? 'BANNED' : 'ACTIVE';
-    showLoading();
-    apiFetch('/api/admin/users/' + currentUserId + '/status', { method: 'PATCH', body: JSON.stringify({ status: newStatus }) })
-      .then(function() { hideLoading(); showToastMsg('✅ Đã cập nhật trạng thái!'); setTimeout(function() { location.reload(); }, 1500); })
-      .catch(function(e) { hideLoading(); showToastMsg('❌ Lỗi: ' + e.message); });
-  });
-
-  // Search
-  var searchInput = document.querySelector('input[placeholder*="Tìm"]');
-  if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      var q = searchInput.value.toLowerCase();
-      filterAndRender(q);
+  var detailLockBtn = document.getElementById('detail-btn-lock');
+  if (detailLockBtn) {
+    detailLockBtn.addEventListener('click', function() {
+      if (!currentUserId) return;
+      var u = allCustomers.find(function(c) { return c.user_id === currentUserId; });
+      if (!u) return;
+      var newStatus = u.status === 'ACTIVE' ? 'BANNED' : 'ACTIVE';
+      var action = newStatus === 'BANNED' ? 'Khóa' : 'Mở khóa';
+      if (!confirm(action + ' tài khoản "' + (u.full_name || u.phone) + '"?')) return;
+      showLoading();
+      apiFetch('/api/admin/users/' + currentUserId + '/status', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus })
+      }).then(function() {
+        hideLoading();
+        showToastMsg('✅ Đã ' + action.toLowerCase() + ' tài khoản!');
+        u.status = newStatus;
+        openDetail(u);
+        filterAndRender();
+      }).catch(function(err) {
+        hideLoading();
+        showToastMsg('❌ Lỗi: ' + err.message);
+      });
     });
   }
 
-  function filterAndRender(q) {
-    var filtered = allCustomers;
-    if (q) filtered = filtered.filter(function(u) {
-      return (u.full_name && u.full_name.toLowerCase().includes(q)) ||
-             (u.phone && u.phone.includes(q));
+  // Filter & Search
+  var searchInput = document.querySelector('input[placeholder*="Tìm"]');
+  var filterStatus = document.getElementById('filter-status');
+
+  function filterAndRender() {
+    var q = searchInput ? searchInput.value.toLowerCase() : '';
+    var st = filterStatus ? filterStatus.value : '';
+    var filtered = allCustomers.filter(function(u) {
+      var matchQ = !q || (u.full_name && u.full_name.toLowerCase().includes(q)) || (u.phone && u.phone.includes(q));
+      var matchSt = !st || u.status === st;
+      return matchQ && matchSt;
     });
     renderTable(filtered);
   }
+
+  if (searchInput) searchInput.addEventListener('input', filterAndRender);
+  if (filterStatus) filterStatus.addEventListener('change', filterAndRender);
 
   // Load data
   showLoading();

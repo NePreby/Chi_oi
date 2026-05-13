@@ -343,6 +343,26 @@ export class ApiService {
     });
   }
 
+  async updateUserStatus(adminId: number, userId: number, status: string) {
+    const allowed = ['ACTIVE', 'BANNED'];
+    if (!allowed.includes(status)) throw new BadRequestException('Trạng thái không hợp lệ');
+    const user = await this.prisma.users.update({
+      where: { user_id: userId },
+      data: { status, updated_at: new Date() },
+      select: { user_id: true, phone: true, full_name: true, role: true, status: true }
+    });
+    await this.prisma.admin_audit_logs.create({
+      data: {
+        admin_id: adminId,
+        action: status === 'BANNED' ? 'BAN_USER' : 'UNBAN_USER',
+        target_table: 'users',
+        target_id: userId,
+        new_data: { status }
+      }
+    });
+    return user;
+  }
+
   async getAdminOrders() {
     return this.prisma.orders.findMany({
       include: {

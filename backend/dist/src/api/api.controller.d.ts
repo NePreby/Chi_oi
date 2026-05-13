@@ -367,6 +367,13 @@ export declare class ApiController {
             last_heartbeat: Date | null;
         } | null;
     }[]>;
+    updateUserStatus(req: any, id: number, status: string): Promise<{
+        user_id: number;
+        phone: string;
+        full_name: string;
+        role: string;
+        status: string | null;
+    }>;
     getAdminOrders(): Promise<({
         customers: {
             users: {

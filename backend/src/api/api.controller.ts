@@ -214,6 +214,13 @@ export class ApiController {
     return this.apiService.getAdminUsers();
   }
 
+  @Patch('admin/users/:id/status')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Khóa hoặc mở khóa tài khoản người dùng' })
+  async updateUserStatus(@Request() req, @Param('id', ParseIntPipe) id: number, @Body('status') status: string) {
+    return this.apiService.updateUserStatus(req.user.userId, id, status);
+  }
+
   @Get('admin/orders')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Lấy danh sách Orders' })

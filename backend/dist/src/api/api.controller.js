@@ -109,6 +109,9 @@ let ApiController = class ApiController {
     async getAdminUsers() {
         return this.apiService.getAdminUsers();
     }
+    async updateUserStatus(req, id, status) {
+        return this.apiService.updateUserStatus(req.user.userId, id, status);
+    }
     async getAdminOrders() {
         return this.apiService.getAdminOrders();
     }
@@ -380,6 +383,17 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "getAdminUsers", null);
+__decorate([
+    (0, common_1.Patch)('admin/users/:id/status'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Khóa hoặc mở khóa tài khoản người dùng' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, String]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "updateUserStatus", null);
 __decorate([
     (0, common_1.Get)('admin/orders'),
     (0, roles_decorator_1.Roles)('ADMIN'),
