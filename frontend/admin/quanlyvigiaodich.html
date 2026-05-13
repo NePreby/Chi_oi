@@ -229,121 +229,112 @@
 </header>
 <!-- Main Content -->
 <main class="ml-[240px] pt-16 min-h-screen">
-<div class="p-container_padding space-y-gutter">
-<!-- Filter Bar -->
-<div class="flex flex-wrap items-center justify-between gap-4 bg-surface p-4 rounded-xl card-shadow">
-<div class="flex items-center gap-4">
-<div class="flex flex-col gap-1">
-<span class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wider">Loại giao dịch</span>
-<select id="tx-type-filter" class="bg-surface-container-low border-none rounded-lg text-body-sm py-2 px-4 focus:ring-1 focus:ring-primary outline-none min-w-[160px]">
-<option value="">Tất cả giao dịch</option>
-<option value="TOPUP">Nạp tiền</option>
-<option value="PAYMENT">Thanh toán</option>
-<option value="REFUND">Hoàn tiền</option>
-<option value="WITHDRAWAL">Rút tiền</option>
-<option value="EARNING">Thu nhập Tasker</option>
-</select>
-</div>
-<div class="flex flex-col gap-1">
-<span class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wider">Khoảng ngày</span>
-<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-2 gap-2">
-<span class="material-symbols-outlined text-sm text-on-surface-variant">calendar_today</span>
-<span class="text-body-sm">01/10/2023 - 31/10/2023</span>
-</div>
-</div>
-</div>
-<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-sm">download</span>
-                    Xuất báo cáo
-                </button>
-</div>
-<!-- Stat Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-<!-- Card 1 -->
-<div class="bg-surface p-6 rounded-xl card-shadow border border-white flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary-container">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
-</div>
-<div>
-<p class="font-label-md text-on-surface-variant">Tổng tiền trong hệ thống</p>
-<h3 id="stat-total-balance" class="font-display-lg text-display-lg text-on-surface">...đ</h3>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="bg-surface p-6 rounded-xl card-shadow border border-white flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary-container">
-<span class="material-symbols-outlined">swap_horiz</span>
-</div>
-<div>
-<p class="font-label-md text-on-surface-variant">Giao dịch hôm nay</p>
-<h3 id="stat-today-tx" class="font-display-lg text-display-lg text-on-surface">... GD</h3>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="bg-surface p-6 rounded-xl card-shadow border border-white flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-[#FFD700]/10 flex items-center justify-center text-[#B8860B]">
-<span class="material-symbols-outlined">pending</span>
-</div>
-<div>
-<p class="font-label-md text-on-surface-variant">Chờ thanh toán Tasker</p>
-<h3 id="stat-pending-wd" class="font-display-lg text-display-lg text-on-surface">...đ</h3>
-</div>
-</div>
-<!-- Card 4 -->
-<div class="bg-surface p-6 rounded-xl card-shadow border border-white flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-<span class="material-symbols-outlined">payments</span>
-</div>
-<div>
-<p class="font-label-md text-on-surface-variant">Đã thanh toán tháng này</p>
-<h3 id="stat-paid-month" class="font-display-lg text-display-lg text-on-surface">...đ</h3>
-</div>
-</div>
-</div>
-<!-- Two Column Layout -->
-<div class="grid grid-cols-12 gap-gutter">
-<!-- Left Column: Transaction History -->
-<div class="col-span-12 lg:col-span-7 xl:col-span-8 bg-surface rounded-xl card-shadow overflow-hidden">
-<div class="p-6 border-b border-outline-variant/20 flex justify-between items-center">
-<h3 class="font-title-sm text-title-sm">Lịch sử giao dịch gần đây</h3>
-<span id="tx-count" class="text-on-surface-variant text-body-sm">...</span>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left">
-<thead class="bg-surface-container-low/50">
-<tr class="font-label-bold text-on-surface-variant">
-<th class="px-6 py-4 border-b border-outline-variant/20">ID GD</th>
-<th class="px-6 py-4 border-b border-outline-variant/20">Người dùng</th>
-<th class="px-6 py-4 border-b border-outline-variant/20">Loại</th>
-<th class="px-6 py-4 border-b border-outline-variant/20">Số tiền</th>
-<th class="px-6 py-4 border-b border-outline-variant/20">Trạng thái</th>
-<th class="px-6 py-4 border-b border-outline-variant/20">Thời gian</th>
-</tr>
-</thead>
-<tbody id="tx-tbody" class="divide-y divide-outline-variant/10 text-body-sm">
-<tr><td colspan="6" class="text-center py-10 text-on-surface-variant">Đang tải...</td></tr>
-</tbody>
-</div>
-<div class="p-4 border-t border-outline-variant/10">
-  <p class="text-center text-body-sm text-on-surface-variant">Hiển thị tối đa 100 giao dịch gần nhất</p>
-</div>
-</div>
-<!-- Right Column -->
-<div class="col-span-12 lg:col-span-5 xl:col-span-4 space-y-gutter">
-<!-- Yêu cầu rút tiền Card -->
-<div class="bg-surface rounded-xl card-shadow overflow-hidden">
-<div class="p-5 border-b border-outline-variant/20 flex justify-between items-center">
-<h3 class="font-label-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-lg">account_balance_wallet</span>
-  Yêu cầu rút tiền Tasker
-</h3>
-<span id="wd-badge" class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full">...</span>
-</div>
-<div id="wd-container" class="p-2 space-y-2">
-<p class="text-body-sm text-on-surface-variant text-center py-6">Đang tải...</p>
-</div>
-</div>
-</div>
+<div class="p-8 space-y-6">
+
+  <!-- Filter Bar -->
+  <div class="flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-white rounded-xl px-4 py-2.5 shadow-sm border border-outline-variant/20">
+        <span class="material-symbols-outlined text-sm text-on-surface-variant">filter_list</span>
+        <select id="tx-type-filter" class="bg-transparent border-none text-body-sm focus:ring-0 outline-none cursor-pointer pr-1">
+          <option value="">Tat ca giao dich</option>
+          <option value="TOPUP">Nap tien</option>
+          <option value="PAYMENT">Thanh toan</option>
+          <option value="REFUND">Hoan tien</option>
+          <option value="WITHDRAWAL">Rut tien</option>
+          <option value="EARNING">Thu nhap Tasker</option>
+        </select>
+      </div>
+      <span id="tx-count" class="text-body-sm text-on-surface-variant"></span>
+    </div>
+    <button class="bg-primary text-white px-5 py-2.5 rounded-xl font-label-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all text-body-sm">
+      <span class="material-symbols-outlined text-sm">download</span>
+      Xuat bao cao
+    </button>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-outline-variant/20">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-blue-500" style="font-variation-settings:'FILL' 1;font-size:20px">account_balance</span>
+        </div>
+        <p class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wide leading-tight">Tong so du<br>he thong</p>
+      </div>
+      <h3 id="stat-total-balance" class="text-[20px] font-bold text-on-surface">&#x2014;</h3>
+    </div>
+    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-outline-variant/20">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-primary" style="font-size:20px">swap_horiz</span>
+        </div>
+        <p class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wide leading-tight">Giao dich<br>hom nay</p>
+      </div>
+      <h3 id="stat-today-tx" class="text-[20px] font-bold text-on-surface">&#x2014;</h3>
+    </div>
+    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-outline-variant/20">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-yellow-600" style="font-size:20px">pending_actions</span>
+        </div>
+        <p class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wide leading-tight">Cho duyet<br>rut tien</p>
+      </div>
+      <h3 id="stat-pending-wd" class="text-[20px] font-bold text-yellow-600">&#x2014;</h3>
+    </div>
+    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-outline-variant/20">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-green-600" style="font-variation-settings:'FILL' 1;font-size:20px">payments</span>
+        </div>
+        <p class="font-label-bold text-[10px] text-on-surface-variant uppercase tracking-wide leading-tight">Thanh toan<br>thang nay</p>
+      </div>
+      <h3 id="stat-paid-month" class="text-[20px] font-bold text-green-600">&#x2014;</h3>
+    </div>
+  </div>
+
+  <!-- Yeu cau rut tien (full width, grid ngang) -->
+  <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden">
+    <div class="px-5 py-4 border-b border-outline-variant/20 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+        <h3 class="font-title-sm text-on-surface">Yeu cau rut tien Tasker</h3>
+      </div>
+      <span id="wd-badge" class="bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">...</span>
+    </div>
+    <div id="wd-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
+      <p class="text-body-sm text-on-surface-variant text-center py-4 col-span-full">Dang tai...</p>
+    </div>
+  </div>
+
+  <!-- Bang lich su giao dich (full width) -->
+  <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden">
+    <div class="px-5 py-4 border-b border-outline-variant/20 flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary">receipt_long</span>
+      <h3 class="font-title-sm text-on-surface">Lich su giao dich</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-surface-container-low/70 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+            <th class="px-5 py-3 border-b border-outline-variant/20">Ma GD</th>
+            <th class="px-5 py-3 border-b border-outline-variant/20">Nguoi dung</th>
+            <th class="px-5 py-3 border-b border-outline-variant/20">Loai</th>
+            <th class="px-5 py-3 border-b border-outline-variant/20">So tien</th>
+            <th class="px-5 py-3 border-b border-outline-variant/20">Trang thai</th>
+            <th class="px-5 py-3 border-b border-outline-variant/20">Thoi gian</th>
+          </tr>
+        </thead>
+        <tbody id="tx-tbody" class="divide-y divide-outline-variant/10 text-body-sm">
+          <tr><td colspan="6" class="text-center py-16 text-on-surface-variant">
+            <span class="material-symbols-outlined text-5xl block mb-3 opacity-20">hourglass_empty</span>
+            Dang tai du lieu...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 </main>
 <!-- CHIOI-JS-INJECT -->
@@ -554,13 +545,13 @@
 
   // ---- Helpers ----
   function fmtVND(n) {
-    n = Number(n || 0);
-    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'T';
-    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+    n = Math.abs(Number(n || 0));
+    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + ' Tđ';
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'Mđ';
     return n.toLocaleString('vi-VN') + 'đ';
   }
   function fmtVNDFull(n) {
-    return Number(n || 0).toLocaleString('vi-VN') + 'đ';
+    return Math.abs(Number(n || 0)).toLocaleString('vi-VN') + 'đ';
   }
   function fmtDT(d) {
     if (!d) return '—';
@@ -590,7 +581,7 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!txs || txs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-on-surface-variant">Không có giao dịch nào</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-on-surface-variant"><span class="material-symbols-outlined text-4xl block mb-2 opacity-20">inbox</span>Không có giao dịch nào</td></tr>';
       return;
     }
     txs.forEach(function(tx, idx) {
@@ -599,24 +590,24 @@
       var typeInfo = TYPE_MAP[tx.type] || { label: tx.type, cls: 'bg-gray-100 text-gray-700' };
       var statusInfo = STATUS_MAP[tx.status] || { dot: 'bg-gray-400', label: tx.status };
       var isCredit = tx.type === 'TOPUP' || tx.type === 'REFUND' || tx.type === 'EARNING';
-      var amtClass = isCredit ? 'text-green-600' : 'text-error';
+      var amtClass = isCredit ? 'text-green-600 font-bold' : 'text-error font-bold';
       var amtPrefix = isCredit ? '+' : '-';
-      var txCode = tx.transaction_code || ('#TX' + tx.transaction_id);
+      var txCode = tx.transaction_code ? tx.transaction_code.substring(0, 16) + (tx.transaction_code.length > 16 ? '...' : '') : ('#TX' + tx.transaction_id);
 
       var tr = document.createElement('tr');
-      tr.className = (idx % 2 ? 'bg-background/50 ' : '') + 'hover:bg-surface-container-lowest transition-colors';
+      tr.className = (idx % 2 ? 'bg-surface-container-low/30 ' : '') + 'hover:bg-primary/5 transition-colors';
       tr.innerHTML =
-        '<td class="px-6 py-4 font-mono text-xs text-on-surface-variant">' + txCode + '</td>' +
-        '<td class="px-6 py-4"><div class="flex items-center gap-3">' +
-          '<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">' +
-            '<span class="material-symbols-outlined text-primary text-[16px]">person</span></div>' +
-          '<div><p class="text-body-sm font-medium">' + userName + '</p>' +
+        '<td class="px-5 py-3 font-mono text-[11px] text-on-surface-variant">' + txCode + '</td>' +
+        '<td class="px-5 py-3"><div class="flex items-center gap-2.5">' +
+          '<div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">' +
+            '<span class="material-symbols-outlined text-primary" style="font-size:14px">person</span></div>' +
+          '<div><p class="text-body-sm font-medium leading-tight">' + userName + '</p>' +
           (user ? '<p class="text-[10px] text-on-surface-variant">' + user.phone + '</p>' : '') +
           '</div></div></td>' +
-        '<td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-[10px] font-bold ' + typeInfo.cls + '">' + typeInfo.label + '</span></td>' +
-        '<td class="px-6 py-4 font-bold ' + amtClass + '">' + amtPrefix + fmtVNDFull(tx.amount) + '</td>' +
-        '<td class="px-6 py-4"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ' + statusInfo.dot + '"></span>' + statusInfo.label + '</div></td>' +
-        '<td class="px-6 py-4 text-on-surface-variant text-body-sm">' + fmtDT(tx.created_at) + '</td>';
+        '<td class="px-5 py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ' + typeInfo.cls + '">' + typeInfo.label + '</span></td>' +
+        '<td class="px-5 py-3 ' + amtClass + '">' + amtPrefix + fmtVNDFull(tx.amount) + '</td>' +
+        '<td class="px-5 py-3"><div class="flex items-center gap-1.5 text-body-sm"><span class="w-1.5 h-1.5 rounded-full ' + statusInfo.dot + '"></span>' + statusInfo.label + '</div></td>' +
+        '<td class="px-5 py-3 text-on-surface-variant text-[12px]">' + fmtDT(tx.created_at) + '</td>';
       tbody.appendChild(tr);
     });
   }
@@ -687,23 +678,25 @@
       if (pendingWd.length === 0) {
         wdContainer.innerHTML = '<p class="text-body-sm text-on-surface-variant text-center py-6">Không có yêu cầu rút tiền nào</p>';
       } else {
-        pendingWd.slice(0, 5).forEach(function(wd) {
+        pendingWd.slice(0, 6).forEach(function(wd) {
           var userName = (wd.wallets && wd.wallets.users && wd.wallets.users.full_name) || 'Tasker #' + wd.wallet_id;
           var walletBalance = (wd.wallets && wd.wallets.balance) ? fmtVNDFull(wd.wallets.balance) : '—';
+          var reqTime = wd.created_at ? fmtDT(wd.created_at) : '—';
           var item = document.createElement('div');
-          item.className = 'p-4 rounded-xl border border-outline-variant/10 bg-surface-container-low/30 space-y-4';
+          item.className = 'bg-surface-container-low/40 border border-outline-variant/20 rounded-xl p-4 flex flex-col gap-3 hover:bg-surface-container-low transition-colors';
           item.innerHTML =
-            '<div class="flex justify-between items-start">' +
-              '<div class="flex items-center gap-3">' +
-                '<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary">person</span></div>' +
-                '<div><p class="font-label-bold">' + userName + '</p>' +
-                '<p class="text-[10px] text-on-surface-variant italic">Số dư ví: ' + walletBalance + '</p></div>' +
+            '<div class="flex items-center justify-between">' +
+              '<div class="flex items-center gap-2.5">' +
+                '<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary" style="font-size:18px">person</span></div>' +
+                '<div><p class="font-label-bold text-on-surface text-[13px]">' + userName + '</p>' +
+                '<p class="text-[10px] text-on-surface-variant">Dư ví: ' + walletBalance + '</p></div>' +
               '</div>' +
-              '<p class="text-primary font-display-lg text-lg">' + fmtVNDFull(wd.amount) + '</p>' +
+              '<div class="text-right"><p class="text-primary font-bold text-[16px]">' + fmtVNDFull(wd.amount) + '</p>' +
+              '<p class="text-[10px] text-on-surface-variant">' + reqTime + '</p></div>' +
             '</div>' +
             '<div class="flex gap-2">' +
-              '<button class="wd-approve flex-1 bg-green-600 text-white py-2 rounded-lg font-label-bold text-[11px] hover:bg-green-700 transition-colors" data-wid="' + wd.transaction_id + '">Duyệt rút</button>' +
-              '<button class="wd-reject flex-1 border border-error text-error py-2 rounded-lg font-label-bold text-[11px] hover:bg-error/5 transition-colors" data-wid="' + wd.transaction_id + '">Từ chối</button>' +
+              '<button class="wd-approve flex-1 bg-green-600 text-white py-1.5 rounded-lg font-label-bold text-[11px] hover:bg-green-700 transition-colors flex items-center justify-center gap-1" data-wid="' + wd.transaction_id + '"><span class="material-symbols-outlined" style="font-size:14px">check_circle</span>Duyệt rút</button>' +
+              '<button class="wd-reject border border-error text-error py-1.5 px-3 rounded-lg font-label-bold text-[11px] hover:bg-error/5 transition-colors flex items-center justify-center gap-1" data-wid="' + wd.transaction_id + '"><span class="material-symbols-outlined" style="font-size:14px">cancel</span>Từ chối</button>' +
             '</div>';
           wdContainer.appendChild(item);
         });
