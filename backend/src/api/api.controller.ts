@@ -115,28 +115,7 @@ export class ApiController {
     return this.apiService.createTicket(req.user.userId, body.subject, body.description);
   }
 
-  @Get('support/tickets')
-  @Roles('CUSTOMER', 'TASKER')
-  @ApiOperation({ summary: 'Lấy danh sách ticket của user hiện tại' })
-  async getMyTickets(@Request() req) {
-    return this.apiService.getMyTickets(req.user.userId);
-  }
-
-  @Get('support/tickets/:id')
-  @Roles('CUSTOMER', 'TASKER')
-  @ApiOperation({ summary: 'Chi tiết ticket + danh sách tin nhắn' })
-  async getMyTicketDetail(@Request() req, @Param('id', ParseIntPipe) id: number) {
-    return this.apiService.getMyTicketDetail(req.user.userId, id);
-  }
-
-  @Post('support/tickets/:id/messages')
-  @Roles('CUSTOMER', 'TASKER', 'ADMIN')
-  @ApiOperation({ summary: 'Gửi tin nhắn vào ticket' })
-  async sendTicketMessage(@Request() req, @Param('id', ParseIntPipe) id: number, @Body('content') content: string) {
-    return this.apiService.sendTicketMessage(req.user.userId, id, content);
-  }
-
-
+  // --- Admin APIs ---
   @Patch('admin/taskers/:id/approve')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Duyệt hồ sơ Tasker (KYC)' })

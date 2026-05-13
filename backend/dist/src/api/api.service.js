@@ -23,26 +23,26 @@ let ApiService = class ApiService {
             select: { user_id: true, phone: true, full_name: true, email: true, gender: true, avatar_url: true, role: true, status: true, created_at: true },
         });
         if (!user)
-            throw new common_1.BadRequestException('KhĂ´ng tĂ¬m tháº¥y ngÆ°á»i dĂ¹ng');
+            throw new common_1.BadRequestException('Không tìm thấy người dùng');
         const customer = await this.prisma.customers.findUnique({ where: { customer_id: userId } });
         const tasker = await this.prisma.taskers.findUnique({ where: { tasker_id: userId } });
         return { ...user, address: customer?.default_address || null, bio: tasker?.bio || null };
     }
     async updateUserProfile(userId, data) {
         if (data.full_name !== undefined && (typeof data.full_name !== 'string' || data.full_name.trim().length === 0)) {
-            throw new common_1.BadRequestException('Há» tĂªn khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng');
+            throw new common_1.BadRequestException('Họ tên không được để trống');
         }
         if (data.full_name && data.full_name.length > 100) {
-            throw new common_1.BadRequestException('Há» tĂªn tá»‘i Ä‘a 100 kĂ½ tá»±');
+            throw new common_1.BadRequestException('Họ tên tối đa 100 ký tự');
         }
         if (data.gender !== undefined && !['male', 'female', 'other', ''].includes(data.gender)) {
-            throw new common_1.BadRequestException('Giá»›i tĂ­nh khĂ´ng há»£p lá»‡');
+            throw new common_1.BadRequestException('Giới tính không hợp lệ');
         }
         if (data.email !== undefined && data.email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-            throw new common_1.BadRequestException('Email khĂ´ng há»£p lá»‡');
+            throw new common_1.BadRequestException('Email không hợp lệ');
         }
         if (data.bio !== undefined && typeof data.bio === 'string' && data.bio.length > 500) {
-            throw new common_1.BadRequestException('MĂ´ táº£ báº£n thĂ¢n tá»‘i Ä‘a 500 kĂ½ tá»±');
+            throw new common_1.BadRequestException('Mô tả bản thân tối đa 500 ký tự');
         }
         const updateData = { updated_at: new Date() };
         if (data.full_name !== undefined)
@@ -77,20 +77,20 @@ let ApiService = class ApiService {
     }
     async subscribePackage(userId, packageId) {
         if (!packageId || isNaN(packageId)) {
-            throw new common_1.BadRequestException('Package ID khĂ´ng há»£p lá»‡');
+            throw new common_1.BadRequestException('Package ID không hợp lệ');
         }
         const pkg = await this.prisma.family_packages.findUnique({ where: { package_id: packageId } });
         if (!pkg || !pkg.is_active) {
-            throw new common_1.BadRequestException('GĂ³i khĂ´ng tá»“n táº¡i hoáº·c Ä‘Ă£ ngÆ°ng');
+            throw new common_1.BadRequestException('Gói không tồn tại hoặc đã ngưng');
         }
         const wallet = await this.prisma.wallets.findUnique({ where: { user_id: userId } });
         if (!wallet) {
-            throw new common_1.BadRequestException('VĂ­ khĂ´ng tá»“n táº¡i. Vui lĂ²ng liĂªn há»‡ há»— trá»£.');
+            throw new common_1.BadRequestException('Ví không tồn tại. Vui lòng liên hệ hỗ trợ.');
         }
         const price = Number(pkg.price);
         const balance = Number(wallet.balance);
         if (balance < price) {
-            throw new common_1.BadRequestException('Sá»‘ dÆ° khĂ´ng Ä‘á»§. Cáº§n ' + price + ' nhÆ°ng chá»‰ cĂ³ ' + balance);
+            throw new common_1.BadRequestException('Số dư không đủ. Cần ' + price + ' nhưng chỉ có ' + balance);
         }
         const startDate = new Date();
         const endDate = new Date();
@@ -116,12 +116,12 @@ let ApiService = class ApiService {
                     amount: price,
                     type: 'PAYMENT',
                     status: 'COMPLETED',
-                    description: 'ÄÄƒng kĂ½ gĂ³i ' + pkg.name,
+                    description: 'Đăng ký gói ' + pkg.name,
                 },
             }),
         ]);
         return {
-            message: 'ÄÄƒng kĂ½ gĂ³i thĂ nh cĂ´ng',
+            message: 'Đăng ký gói thành công',
             subscription,
             wallet: { balance: updatedWallet.balance },
         };
@@ -190,67 +190,6 @@ let ApiService = class ApiService {
             },
         });
     }
-    async getMyTickets(userId) {
-        return this.prisma.support_tickets.findMany({
-            where: { user_id: userId },
-            orderBy: { created_at: 'desc' },
-            select: {
-                ticket_id: true,
-                ticket_code: true,
-                subject: true,
-                description: true,
-                status: true,
-                priority: true,
-                created_at: true,
-                updated_at: true,
-            },
-        });
-    }
-    async getMyTicketDetail(userId, ticketId) {
-        const ticket = await this.prisma.support_tickets.findFirst({
-            where: { ticket_id: ticketId, user_id: userId },
-        });
-        if (!ticket)
-            throw new Error('Ticket not found');
-        const messages = await this.prisma.messages.findMany({
-            where: {
-                OR: [
-                    { sender_id: userId, order_id: null },
-                    { receiver_id: userId, order_id: null },
-                ],
-            },
-            orderBy: { created_at: 'asc' },
-            include: {
-                users_messages_sender_idTousers: { select: { full_name: true, role: true, avatar_url: true } },
-            },
-        });
-        return { ticket, messages };
-    }
-    async sendTicketMessage(senderId, ticketId, content) {
-        const ticket = await this.prisma.support_tickets.findUnique({
-            where: { ticket_id: ticketId },
-            include: { users: { select: { user_id: true, role: true } } },
-        });
-        if (!ticket)
-            throw new Error('Ticket not found');
-        const sender = await this.prisma.users.findUnique({ where: { user_id: senderId }, select: { role: true } });
-        const receiverId = sender?.role === 'ADMIN' ? ticket.user_id : (ticket.admin_id ?? 1);
-        const msg = await this.prisma.messages.create({
-            data: {
-                sender_id: senderId,
-                receiver_id: receiverId,
-                content,
-            },
-            include: {
-                users_messages_sender_idTousers: { select: { full_name: true, role: true, avatar_url: true } },
-            },
-        });
-        await this.prisma.support_tickets.update({
-            where: { ticket_id: ticketId },
-            data: { updated_at: new Date() },
-        });
-        return msg;
-    }
     async approveTaskerKyc(adminId, taskerId, status) {
         const tasker = await this.prisma.taskers.update({
             where: { tasker_id: taskerId },
@@ -269,13 +208,13 @@ let ApiService = class ApiService {
     }
     async approveTaskerService(adminId, taskerId, serviceId, status) {
         if (!['APPROVED', 'REJECTED'].includes(status)) {
-            throw new common_1.BadRequestException('Status pháº£i lĂ  APPROVED hoáº·c REJECTED');
+            throw new common_1.BadRequestException('Status phải là APPROVED hoặc REJECTED');
         }
         const record = await this.prisma.tasker_services.findUnique({
             where: { tasker_id_service_id: { tasker_id: taskerId, service_id: serviceId } },
         });
         if (!record) {
-            throw new common_1.BadRequestException('KhĂ´ng tĂ¬m tháº¥y Ä‘Äƒng kĂ½ dá»‹ch vá»¥ nĂ y');
+            throw new common_1.BadRequestException('Không tìm thấy đăng ký dịch vụ này');
         }
         const updated = await this.prisma.tasker_services.update({
             where: { tasker_id_service_id: { tasker_id: taskerId, service_id: serviceId } },
@@ -293,7 +232,7 @@ let ApiService = class ApiService {
             });
         }
         catch (e) {
-            console.warn('[AuditLog] KhĂ´ng ghi Ä‘Æ°á»£c audit log:', e.message);
+            console.warn('[AuditLog] Không ghi được audit log:', e.message);
         }
         return updated;
     }
@@ -364,7 +303,7 @@ let ApiService = class ApiService {
     async updateUserStatus(adminId, userId, status) {
         const allowed = ['ACTIVE', 'BANNED'];
         if (!allowed.includes(status))
-            throw new common_1.BadRequestException('Tráº¡ng thĂ¡i khĂ´ng há»£p lá»‡');
+            throw new common_1.BadRequestException('Trạng thái không hợp lệ');
         const user = await this.prisma.users.update({
             where: { user_id: userId },
             data: { status, updated_at: new Date() },
@@ -438,7 +377,7 @@ let ApiService = class ApiService {
                 new_data: { note: resolutionNote }
             }
         });
-        return { success: true, message: 'ÄĂ£ lÆ°u lá»‹ch sá»­ can thiá»‡p' };
+        return { success: true, message: 'Đã lưu lịch sử can thiệp' };
     }
     async getAdminTickets(status, priority) {
         const where = {};
@@ -538,17 +477,17 @@ let ApiService = class ApiService {
     }
     async registerTaskerService(taskerId, serviceId) {
         if (!serviceId || isNaN(serviceId)) {
-            throw new common_1.BadRequestException('Service ID khĂ´ng há»£p lá»‡');
+            throw new common_1.BadRequestException('Service ID không hợp lệ');
         }
         const service = await this.prisma.services.findUnique({ where: { service_id: serviceId } });
         if (!service || !service.is_active) {
-            throw new common_1.BadRequestException('Dá»‹ch vá»¥ khĂ´ng tá»“n táº¡i hoáº·c Ä‘Ă£ ngÆ°ng');
+            throw new common_1.BadRequestException('Dịch vụ không tồn tại hoặc đã ngưng');
         }
         const existing = await this.prisma.tasker_services.findUnique({
             where: { tasker_id_service_id: { tasker_id: taskerId, service_id: serviceId } },
         });
         if (existing) {
-            throw new common_1.BadRequestException('Báº¡n Ä‘Ă£ Ä‘Äƒng kĂ½ dá»‹ch vá»¥ nĂ y rá»“i');
+            throw new common_1.BadRequestException('Bạn đã đăng ký dịch vụ này rồi');
         }
         return this.prisma.tasker_services.create({
             data: {

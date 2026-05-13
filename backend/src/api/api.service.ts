@@ -1,4 +1,4 @@
-﻿import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class ApiService {
       where: { user_id: userId },
       select: { user_id: true, phone: true, full_name: true, email: true, gender: true, avatar_url: true, role: true, status: true, created_at: true },
     });
-    if (!user) throw new BadRequestException('KhĂ´ng tĂ¬m tháº¥y ngÆ°á»i dĂ¹ng');
+    if (!user) throw new BadRequestException('Không tìm thấy người dùng');
 
     const customer = await this.prisma.customers.findUnique({ where: { customer_id: userId } });
     const tasker = await this.prisma.taskers.findUnique({ where: { tasker_id: userId } });
@@ -22,19 +22,19 @@ export class ApiService {
   async updateUserProfile(userId: number, data: { full_name?: string; gender?: string; email?: string; address?: string; bio?: string }) {
     // Input validation
     if (data.full_name !== undefined && (typeof data.full_name !== 'string' || data.full_name.trim().length === 0)) {
-      throw new BadRequestException('Há» tĂªn khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng');
+      throw new BadRequestException('Họ tên không được để trống');
     }
     if (data.full_name && data.full_name.length > 100) {
-      throw new BadRequestException('Há» tĂªn tá»‘i Ä‘a 100 kĂ½ tá»±');
+      throw new BadRequestException('Họ tên tối đa 100 ký tự');
     }
     if (data.gender !== undefined && !['male', 'female', 'other', ''].includes(data.gender)) {
-      throw new BadRequestException('Giá»›i tĂ­nh khĂ´ng há»£p lá»‡');
+      throw new BadRequestException('Giới tính không hợp lệ');
     }
     if (data.email !== undefined && data.email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      throw new BadRequestException('Email khĂ´ng há»£p lá»‡');
+      throw new BadRequestException('Email không hợp lệ');
     }
     if (data.bio !== undefined && typeof data.bio === 'string' && data.bio.length > 500) {
-      throw new BadRequestException('MĂ´ táº£ báº£n thĂ¢n tá»‘i Ä‘a 500 kĂ½ tá»±');
+      throw new BadRequestException('Mô tả bản thân tối đa 500 ký tự');
     }
 
     // Build update data for users table
@@ -77,32 +77,32 @@ export class ApiService {
     return this.prisma.services.findMany({ where: { is_active: true } });
   }
 
-  // --- Package Subscription (Lá»—i 7 FIX) ---
+  // --- Package Subscription (Lỗi 7 FIX) ---
   async subscribePackage(userId: number, packageId: number) {
     if (!packageId || isNaN(packageId)) {
-      throw new BadRequestException('Package ID khĂ´ng há»£p lá»‡');
+      throw new BadRequestException('Package ID không hợp lệ');
     }
 
-    // Láº¥y thĂ´ng tin gĂ³i
+    // Lấy thông tin gói
     const pkg = await this.prisma.family_packages.findUnique({ where: { package_id: packageId } });
     if (!pkg || !pkg.is_active) {
-      throw new BadRequestException('GĂ³i khĂ´ng tá»“n táº¡i hoáº·c Ä‘Ă£ ngÆ°ng');
+      throw new BadRequestException('Gói không tồn tại hoặc đã ngưng');
     }
 
-    // Láº¥y vĂ­
+    // Lấy ví
     const wallet = await this.prisma.wallets.findUnique({ where: { user_id: userId } });
     if (!wallet) {
-      throw new BadRequestException('VĂ­ khĂ´ng tá»“n táº¡i. Vui lĂ²ng liĂªn há»‡ há»— trá»£.');
+      throw new BadRequestException('Ví không tồn tại. Vui lòng liên hệ hỗ trợ.');
     }
 
     const price = Number(pkg.price);
     const balance = Number(wallet.balance);
 
     if (balance < price) {
-      throw new BadRequestException('Sá»‘ dÆ° khĂ´ng Ä‘á»§. Cáº§n ' + price + ' nhÆ°ng chá»‰ cĂ³ ' + balance);
+      throw new BadRequestException('Số dư không đủ. Cần ' + price + ' nhưng chỉ có ' + balance);
     }
 
-    // Trá»« tiá»n + táº¡o gĂ³i trong transaction
+    // Trừ tiền + tạo gói trong transaction
     const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + (pkg.duration_days || 30));
@@ -128,13 +128,13 @@ export class ApiService {
           amount: price,
           type: 'PAYMENT',
           status: 'COMPLETED',
-          description: 'ÄÄƒng kĂ½ gĂ³i ' + pkg.name,
+          description: 'Đăng ký gói ' + pkg.name,
         },
       }),
     ]);
 
     return {
-      message: 'ÄÄƒng kĂ½ gĂ³i thĂ nh cĂ´ng',
+      message: 'Đăng ký gói thành công',
       subscription,
       wallet: { balance: updatedWallet.balance },
     };
@@ -217,80 +217,6 @@ export class ApiService {
     });
   }
 
-  async getMyTickets(userId: number) {
-    return this.prisma.support_tickets.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
-      select: {
-        ticket_id: true,
-        ticket_code: true,
-        subject: true,
-        description: true,
-        status: true,
-        priority: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
-  }
-
-  async getMyTicketDetail(userId: number, ticketId: number) {
-    const ticket = await this.prisma.support_tickets.findFirst({
-      where: { ticket_id: ticketId, user_id: userId },
-    });
-    if (!ticket) throw new Error('Ticket not found');
-
-    // Láº¥y tin nháº¯n liĂªn quan (sender = userId hoáº·c admin)
-    const messages = await this.prisma.messages.findMany({
-      where: {
-        OR: [
-          { sender_id: userId, order_id: null },
-          { receiver_id: userId, order_id: null },
-        ],
-        // Filter by ticket via description match â€” use order_id=null + ticket_code in content check
-      },
-      orderBy: { created_at: 'asc' },
-      include: {
-        users_messages_sender_idTousers: { select: { full_name: true, role: true, avatar_url: true } },
-      },
-    });
-
-    return { ticket, messages };
-  }
-
-  async sendTicketMessage(senderId: number, ticketId: number, content: string) {
-    // Verify ticket belongs to sender (or admin)
-    const ticket = await this.prisma.support_tickets.findUnique({
-      where: { ticket_id: ticketId },
-      include: { users: { select: { user_id: true, role: true } } },
-    });
-    if (!ticket) throw new Error('Ticket not found');
-
-    // Determine receiver: if sender is user â†’ send to admin; if admin â†’ send to user
-    const sender = await this.prisma.users.findUnique({ where: { user_id: senderId }, select: { role: true } });
-    const receiverId = sender?.role === 'ADMIN' ? ticket.user_id : (ticket.admin_id ?? 1);
-
-    const msg = await this.prisma.messages.create({
-      data: {
-        sender_id: senderId,
-        receiver_id: receiverId,
-        content,
-        // Store ticket_id in a queryable way â€” use a dedicated column if available
-      },
-      include: {
-        users_messages_sender_idTousers: { select: { full_name: true, role: true, avatar_url: true } },
-      },
-    });
-
-    // Update ticket updated_at
-    await this.prisma.support_tickets.update({
-      where: { ticket_id: ticketId },
-      data: { updated_at: new Date() },
-    });
-
-    return msg;
-  }
-
   // --- Admin APIs ---
   async approveTaskerKyc(adminId: number, taskerId: number, status: string) {
     const tasker = await this.prisma.taskers.update({
@@ -314,14 +240,14 @@ export class ApiService {
 
   async approveTaskerService(adminId: number, taskerId: number, serviceId: number, status: string) {
     if (!['APPROVED', 'REJECTED'].includes(status)) {
-      throw new BadRequestException('Status pháº£i lĂ  APPROVED hoáº·c REJECTED');
+      throw new BadRequestException('Status phải là APPROVED hoặc REJECTED');
     }
 
     const record = await this.prisma.tasker_services.findUnique({
       where: { tasker_id_service_id: { tasker_id: taskerId, service_id: serviceId } },
     });
     if (!record) {
-      throw new BadRequestException('KhĂ´ng tĂ¬m tháº¥y Ä‘Äƒng kĂ½ dá»‹ch vá»¥ nĂ y');
+      throw new BadRequestException('Không tìm thấy đăng ký dịch vụ này');
     }
 
     const updated = await this.prisma.tasker_services.update({
@@ -329,7 +255,7 @@ export class ApiService {
       data: { status },
     });
 
-    // Ghi audit log (best-effort, khĂ´ng block náº¿u FK fail)
+    // Ghi audit log (best-effort, không block nếu FK fail)
     try {
       await this.prisma.admin_audit_logs.create({
         data: {
@@ -341,7 +267,7 @@ export class ApiService {
         },
       });
     } catch (e) {
-      console.warn('[AuditLog] KhĂ´ng ghi Ä‘Æ°á»£c audit log:', e.message);
+      console.warn('[AuditLog] Không ghi được audit log:', e.message);
     }
 
     return updated;
@@ -419,7 +345,7 @@ export class ApiService {
 
   async updateUserStatus(adminId: number, userId: number, status: string) {
     const allowed = ['ACTIVE', 'BANNED'];
-    if (!allowed.includes(status)) throw new BadRequestException('Tráº¡ng thĂ¡i khĂ´ng há»£p lá»‡');
+    if (!allowed.includes(status)) throw new BadRequestException('Trạng thái không hợp lệ');
     const user = await this.prisma.users.update({
       where: { user_id: userId },
       data: { status, updated_at: new Date() },
@@ -491,7 +417,7 @@ export class ApiService {
   }
 
   async adminResolveOrder(adminId: number, orderId: number, resolutionNote: string) {
-    // Chá»‰ lÆ°u log, khĂ´ng Ä‘á»•i tráº¡ng thĂ¡i Ä‘Æ¡n (vĂ¬ Ä‘Æ¡n váº«n tiáº¿p tá»¥c hoáº·c Ä‘Ă£ há»§y)
+    // Chỉ lưu log, không đổi trạng thái đơn (vì đơn vẫn tiếp tục hoặc đã hủy)
     await this.prisma.admin_audit_logs.create({
       data: {
         admin_id: adminId,
@@ -501,7 +427,7 @@ export class ApiService {
         new_data: { note: resolutionNote }
       }
     });
-    return { success: true, message: 'ÄĂ£ lÆ°u lá»‹ch sá»­ can thiá»‡p' };
+    return { success: true, message: 'Đã lưu lịch sử can thiệp' };
   }
 
   async getAdminTickets(status?: string, priority?: string) {
@@ -613,12 +539,12 @@ export class ApiService {
   // --- Tasker: Register for a service ---
   async registerTaskerService(taskerId: number, serviceId: number) {
     if (!serviceId || isNaN(serviceId)) {
-      throw new BadRequestException('Service ID khĂ´ng há»£p lá»‡');
+      throw new BadRequestException('Service ID không hợp lệ');
     }
 
     const service = await this.prisma.services.findUnique({ where: { service_id: serviceId } });
     if (!service || !service.is_active) {
-      throw new BadRequestException('Dá»‹ch vá»¥ khĂ´ng tá»“n táº¡i hoáº·c Ä‘Ă£ ngÆ°ng');
+      throw new BadRequestException('Dịch vụ không tồn tại hoặc đã ngưng');
     }
 
     // Check if already registered
@@ -626,7 +552,7 @@ export class ApiService {
       where: { tasker_id_service_id: { tasker_id: taskerId, service_id: serviceId } },
     });
     if (existing) {
-      throw new BadRequestException('Báº¡n Ä‘Ă£ Ä‘Äƒng kĂ½ dá»‹ch vá»¥ nĂ y rá»“i');
+      throw new BadRequestException('Bạn đã đăng ký dịch vụ này rồi');
     }
 
     return this.prisma.tasker_services.create({

@@ -184,49 +184,6 @@ export declare class ApiService {
         ticket_id: number;
         admin_id: number | null;
     }>;
-    getMyTickets(userId: number): Promise<{
-        status: string | null;
-        created_at: Date | null;
-        updated_at: Date | null;
-        description: string;
-        ticket_code: string;
-        subject: string;
-        priority: string | null;
-        ticket_id: number;
-    }[]>;
-    getMyTicketDetail(userId: number, ticketId: number): Promise<{
-        ticket: {
-            user_id: number;
-            status: string | null;
-            created_at: Date | null;
-            updated_at: Date | null;
-            description: string;
-            order_id: number | null;
-            ticket_code: string;
-            subject: string;
-            priority: string | null;
-            ticket_id: number;
-            admin_id: number | null;
-        };
-        messages: {
-            created_at: Date | null;
-            order_id: number;
-            message_id: number;
-            sender_id: number;
-            receiver_id: number;
-            content: string;
-            is_read: boolean | null;
-        }[];
-    }>;
-    sendTicketMessage(senderId: number, ticketId: number, content: string): Promise<{
-        created_at: Date | null;
-        order_id: number;
-        message_id: number;
-        sender_id: number;
-        receiver_id: number;
-        content: string;
-        is_read: boolean | null;
-    }>;
     approveTaskerKyc(adminId: number, taskerId: number, status: string): Promise<{
         tasker_id: number;
         bio: string | null;
