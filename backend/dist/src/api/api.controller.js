@@ -115,6 +115,12 @@ let ApiController = class ApiController {
     async adminCancelOrder(req, id) {
         return this.apiService.adminCancelOrder(req.user.userId, id);
     }
+    async adminAssignTasker(req, id, taskerId) {
+        return this.apiService.adminAssignTasker(req.user.userId, id, taskerId);
+    }
+    async adminResolveOrder(req, id, note) {
+        return this.apiService.adminResolveOrder(req.user.userId, id, note);
+    }
     async getAdminTickets() {
         return this.apiService.getAdminTickets();
     }
@@ -392,6 +398,28 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number]),
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "adminCancelOrder", null);
+__decorate([
+    (0, common_1.Patch)('admin/orders/:id/assign'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Admin can thiệp gán Tasker thủ công' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)('tasker_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, Number]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "adminAssignTasker", null);
+__decorate([
+    (0, common_1.Patch)('admin/orders/:id/resolve'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Admin đánh dấu đã xử lý can thiệp' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)('note')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, String]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "adminResolveOrder", null);
 __decorate([
     (0, common_1.Get)('admin/tickets'),
     (0, roles_decorator_1.Roles)('ADMIN'),

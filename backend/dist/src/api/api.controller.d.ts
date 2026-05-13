@@ -327,12 +327,12 @@ export declare class ApiController {
         status: string | null;
         created_at: Date | null;
         description: string | null;
+        order_id: number | null;
         wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
         type: string;
-        order_id: number | null;
     }>;
     resolveTicket(req: any, id: number, status: string): Promise<{
         user_id: number;
@@ -458,6 +458,31 @@ export declare class ApiController {
         notes: string | null;
         cancel_reason: string | null;
     }>;
+    adminAssignTasker(req: any, id: number, taskerId: number): Promise<{
+        status: string | null;
+        created_at: Date | null;
+        updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
+        service_id: number;
+        order_id: number;
+        order_code: string;
+        voucher_id: number | null;
+        scheduled_time: Date;
+        address: string;
+        total_price: import("@prisma/client-runtime-utils").Decimal;
+        discount_amount: import("@prisma/client-runtime-utils").Decimal | null;
+        tasker_earnings: import("@prisma/client-runtime-utils").Decimal;
+        platform_fee: import("@prisma/client-runtime-utils").Decimal;
+        payment_method: string | null;
+        payment_status: string | null;
+        notes: string | null;
+        cancel_reason: string | null;
+    }>;
+    adminResolveOrder(req: any, id: number, note: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     getAdminTickets(): Promise<({
         users: {
             user_id: number;
@@ -489,11 +514,11 @@ export declare class ApiController {
         status: string | null;
         created_at: Date | null;
         description: string | null;
+        order_id: number | null;
         wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
         type: string;
-        order_id: number | null;
     }[]>;
 }

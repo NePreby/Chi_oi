@@ -228,6 +228,20 @@ export class ApiController {
     return this.apiService.adminCancelOrder(req.user.userId, id);
   }
 
+  @Patch('admin/orders/:id/assign')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Admin can thiệp gán Tasker thủ công' })
+  async adminAssignTasker(@Request() req, @Param('id', ParseIntPipe) id: number, @Body('tasker_id', ParseIntPipe) taskerId: number) {
+    return this.apiService.adminAssignTasker(req.user.userId, id, taskerId);
+  }
+
+  @Patch('admin/orders/:id/resolve')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Admin đánh dấu đã xử lý can thiệp' })
+  async adminResolveOrder(@Request() req, @Param('id', ParseIntPipe) id: number, @Body('note') note: string) {
+    return this.apiService.adminResolveOrder(req.user.userId, id, note);
+  }
+
   @Get('admin/tickets')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Lấy danh sách khiếu nại/hỗ trợ (UC-AD-07)' })

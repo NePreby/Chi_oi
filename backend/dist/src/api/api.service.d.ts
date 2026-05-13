@@ -374,6 +374,31 @@ export declare class ApiService {
         notes: string | null;
         cancel_reason: string | null;
     }>;
+    adminAssignTasker(adminId: number, orderId: number, taskerId: number): Promise<{
+        status: string | null;
+        created_at: Date | null;
+        updated_at: Date | null;
+        customer_id: number;
+        tasker_id: number | null;
+        service_id: number;
+        order_id: number;
+        order_code: string;
+        voucher_id: number | null;
+        scheduled_time: Date;
+        address: string;
+        total_price: import("@prisma/client-runtime-utils").Decimal;
+        discount_amount: import("@prisma/client-runtime-utils").Decimal | null;
+        tasker_earnings: import("@prisma/client-runtime-utils").Decimal;
+        platform_fee: import("@prisma/client-runtime-utils").Decimal;
+        payment_method: string | null;
+        payment_status: string | null;
+        notes: string | null;
+        cancel_reason: string | null;
+    }>;
+    adminResolveOrder(adminId: number, orderId: number, resolutionNote: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     getAdminTickets(): Promise<({
         users: {
             user_id: number;

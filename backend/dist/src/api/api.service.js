@@ -326,6 +326,38 @@ let ApiService = class ApiService {
         });
         return order;
     }
+    async adminAssignTasker(adminId, orderId, taskerId) {
+        const order = await this.prisma.orders.update({
+            where: { order_id: orderId },
+            data: {
+                tasker_id: taskerId,
+                status: 'ACCEPTED',
+                updated_at: new Date()
+            }
+        });
+        await this.prisma.admin_audit_logs.create({
+            data: {
+                admin_id: adminId,
+                action: 'FORCE_ASSIGN_TASKER',
+                target_table: 'orders',
+                target_id: orderId,
+                new_data: { status: 'ACCEPTED', tasker_id: taskerId }
+            }
+        });
+        return order;
+    }
+    async adminResolveOrder(adminId, orderId, resolutionNote) {
+        await this.prisma.admin_audit_logs.create({
+            data: {
+                admin_id: adminId,
+                action: 'RESOLVE_INTERVENTION',
+                target_table: 'orders',
+                target_id: orderId,
+                new_data: { note: resolutionNote }
+            }
+        });
+        return { success: true, message: 'Đã lưu lịch sử can thiệp' };
+    }
     async getAdminTickets() {
         return this.prisma.support_tickets.findMany({
             include: { users: true },
