@@ -301,6 +301,11 @@ let ApiService = class ApiService {
     }
     async getAdminOrders() {
         return this.prisma.orders.findMany({
+            include: {
+                services: true,
+                customers: { include: { users: true } },
+                taskers: { include: { users: true } }
+            },
             orderBy: { created_at: 'desc' },
             take: 100
         });

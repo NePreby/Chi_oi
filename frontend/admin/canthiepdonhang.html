@@ -612,15 +612,15 @@
       statusEl.textContent = s.label;
       statusEl.className = 'px-3 py-1 rounded-full font-label-bold text-[10px] tracking-wider uppercase ' + s.cls;
       
-      var customerName = (targetOrder.users && targetOrder.users.full_name) ? targetOrder.users.full_name : '—';
-      var customerPhone = (targetOrder.users && targetOrder.users.phone_number) ? targetOrder.users.phone_number : '—';
+      var customerName = (targetOrder.customers && targetOrder.customers.users && targetOrder.customers.users.full_name) ? targetOrder.customers.users.full_name : '—';
+      var customerPhone = (targetOrder.customers && targetOrder.customers.users && targetOrder.customers.users.phone) ? targetOrder.customers.users.phone : '—';
       var customerAddress = targetOrder.address || '—';
       document.getElementById('ct-customer-name').textContent = customerName;
       document.getElementById('ct-customer-phone').textContent = customerPhone;
       document.getElementById('ct-customer-address').textContent = customerAddress;
 
       var taskerName = (targetOrder.taskers && targetOrder.taskers.users && targetOrder.taskers.users.full_name) ? targetOrder.taskers.users.full_name : 'Chưa có Tasker';
-      var taskerPhone = (targetOrder.taskers && targetOrder.taskers.users && targetOrder.taskers.users.phone_number) ? targetOrder.taskers.users.phone_number : '—';
+      var taskerPhone = (targetOrder.taskers && targetOrder.taskers.users && targetOrder.taskers.users.phone) ? targetOrder.taskers.users.phone : '—';
       document.getElementById('ct-tasker-name').textContent = taskerName;
       document.getElementById('ct-tasker-phone').textContent = taskerPhone;
 

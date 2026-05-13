@@ -749,7 +749,7 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
 
     orders.forEach(function(order, idx) {
       var s = statusMap[order.status] || statusMap['PENDING'];
-      var customerName = (order.users && order.users.full_name) || '—';
+      var customerName = (order.customers && order.customers.users && order.customers.users.full_name) || '—';
       var taskerName = (order.taskers && order.taskers.users && order.taskers.users.full_name) || '—';
       var serviceName = (order.services && order.services.name) || '—';
 

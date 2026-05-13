@@ -364,7 +364,59 @@ export declare class ApiController {
             last_heartbeat: Date | null;
         } | null;
     }[]>;
-    getAdminOrders(): Promise<{
+    getAdminOrders(): Promise<({
+        customers: {
+            users: {
+                user_id: number;
+                phone: string;
+                password_hash: string;
+                full_name: string;
+                email: string | null;
+                gender: string | null;
+                avatar_url: string | null;
+                role: string;
+                status: string | null;
+                created_at: Date | null;
+                updated_at: Date | null;
+            };
+        } & {
+            customer_id: number;
+            default_address: string | null;
+            loyalty_points: number | null;
+        };
+        taskers: ({
+            users: {
+                user_id: number;
+                phone: string;
+                password_hash: string;
+                full_name: string;
+                email: string | null;
+                gender: string | null;
+                avatar_url: string | null;
+                role: string;
+                status: string | null;
+                created_at: Date | null;
+                updated_at: Date | null;
+            };
+        } & {
+            tasker_id: number;
+            bio: string | null;
+            kyc_status: string | null;
+            average_rating: import("@prisma/client-runtime-utils").Decimal | null;
+            total_jobs: number | null;
+            is_online: boolean | null;
+            last_heartbeat: Date | null;
+        }) | null;
+        services: {
+            created_at: Date | null;
+            name: string;
+            service_id: number;
+            description: string | null;
+            base_price: import("@prisma/client-runtime-utils").Decimal;
+            icon_url: string | null;
+            is_active: boolean | null;
+        };
+    } & {
         status: string | null;
         created_at: Date | null;
         updated_at: Date | null;
@@ -384,7 +436,7 @@ export declare class ApiController {
         payment_status: string | null;
         notes: string | null;
         cancel_reason: string | null;
-    }[]>;
+    })[]>;
     adminCancelOrder(req: any, id: number): Promise<{
         status: string | null;
         created_at: Date | null;
