@@ -70,6 +70,15 @@ let ApiController = class ApiController {
     async createTicket(req, body) {
         return this.apiService.createTicket(req.user.userId, body.subject, body.description);
     }
+    async getMyTickets(req) {
+        return this.apiService.getMyTickets(req.user.userId);
+    }
+    async getMyTicketDetail(req, id) {
+        return this.apiService.getMyTicketDetail(req.user.userId, id);
+    }
+    async sendTicketMessage(req, id, content) {
+        return this.apiService.sendTicketMessage(req.user.userId, id, content);
+    }
     async approveTaskerKyc(req, id, status) {
         return this.apiService.approveTaskerKyc(req.user.userId, id, status);
     }
@@ -272,6 +281,36 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "createTicket", null);
+__decorate([
+    (0, common_1.Get)('support/tickets'),
+    (0, roles_decorator_1.Roles)('CUSTOMER', 'TASKER'),
+    (0, swagger_1.ApiOperation)({ summary: 'Lấy danh sách ticket của user hiện tại' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getMyTickets", null);
+__decorate([
+    (0, common_1.Get)('support/tickets/:id'),
+    (0, roles_decorator_1.Roles)('CUSTOMER', 'TASKER'),
+    (0, swagger_1.ApiOperation)({ summary: 'Chi tiết ticket + danh sách tin nhắn' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getMyTicketDetail", null);
+__decorate([
+    (0, common_1.Post)('support/tickets/:id/messages'),
+    (0, roles_decorator_1.Roles)('CUSTOMER', 'TASKER', 'ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Gửi tin nhắn vào ticket' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)('content')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, String]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "sendTicketMessage", null);
 __decorate([
     (0, common_1.Patch)('admin/taskers/:id/approve'),
     (0, roles_decorator_1.Roles)('ADMIN'),
