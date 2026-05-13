@@ -213,6 +213,15 @@
 </div>
 </header>
 <div class="max-w-5xl space-y-gutter">
+
+<!-- Bộ chọn đơn hàng -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 p-4 mb-4 flex items-center gap-4">
+    <label class="font-label-bold text-on-surface whitespace-nowrap">Chọn đơn hàng cần can thiệp:</label>
+    <select id="ct-order-selector" class="flex-1 p-2 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-body-md bg-white">
+        <option value="">-- Chọn mã đơn hàng --</option>
+    </select>
+</div>
+
 <!-- 1. Panel Thông tin Đơn hàng -->
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
 <div class="p-stack_lg border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/30">
@@ -573,8 +582,26 @@
     if (currentOrderId) {
       targetOrder = orders.find(function(o) { return o.order_id === currentOrderId; });
     } else {
-      // Fallback cho UI nếu không có ID: chọn đơn đầu tiên có thể can thiệp
       targetOrder = orders.find(function(o) { return ['PENDING', 'SEARCHING', 'IN_PROGRESS', 'ACCEPTED', 'TASKER_ARRIVED'].indexOf(o.status) > -1; });
+    }
+
+    // Load dropdown options
+    var selector = document.getElementById('ct-order-selector');
+    if (selector) {
+      orders.forEach(function(o) {
+        var sLabel = statusMap[o.status] ? statusMap[o.status].label : o.status;
+        var custName = (o.customers && o.customers.users && o.customers.users.full_name) || 'Khách';
+        var opt = document.createElement('option');
+        opt.value = o.order_id;
+        opt.textContent = '#DH-' + String(o.order_id).padStart(4, '0') + ' | ' + custName + ' | ' + sLabel;
+        if (targetOrder && o.order_id === targetOrder.order_id) opt.selected = true;
+        selector.appendChild(opt);
+      });
+      selector.addEventListener('change', function() {
+        if (this.value) {
+          window.location.href = 'canthiepdonhang.html?id=' + this.value;
+        }
+      });
     }
 
     if (targetOrder) {
