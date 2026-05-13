@@ -270,6 +270,9 @@ export declare class ApiService {
         role: string;
         status: string | null;
         created_at: Date | null;
+        customers: {
+            default_address: string | null;
+        } | null;
         taskers: {
             tasker_id: number;
             bio: string | null;

@@ -586,10 +586,11 @@
       var statusHtml = isActive
         ? '<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 font-label-md text-[10px]">HOẠT ĐỘNG</span>'
         : '<span class="px-3 py-1 rounded-full bg-error-container text-error font-label-md text-[10px]">ĐÃ KHÓA</span>';
-      var orders = allOrders.filter(function(o) { return o.customers && o.customers.user_id === u.user_id; });
+      var orders = allOrders.filter(function(o) { return o.customer_id === u.user_id; });
 
       var tr = document.createElement('tr');
       tr.className = (idx % 2 ? 'bg-background ' : '') + 'hover:bg-surface-container-low transition-colors group cursor-pointer';
+      var addr = (u.customers && u.customers.default_address) ? u.customers.default_address : '—';
       tr.innerHTML =
         '<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>' +
         '<td class="p-4"><div class="flex items-center gap-3">' +
@@ -597,15 +598,15 @@
           '<div><p class="font-label-bold text-on-surface">' + (u.full_name || '—') + '</p>' +
           '<p class="text-body-sm text-on-surface-variant">' + (u.phone || '—') + '</p></div></div></td>' +
         '<td class="p-4 text-body-sm">' + (u.phone || '—') + '</td>' +
-        '<td class="p-4 text-body-sm">' + (u.address || '—') + '</td>' +
-        '<td class="p-4 text-body-sm text-center">' + orders.length + '</td>' +
+        '<td class="p-4 text-body-sm">' + addr + '</td>' +
+        '<td class="p-4 text-body-sm text-center font-medium">' + orders.length + '</td>' +
         '<td class="p-4 text-body-sm text-right font-medium">—</td>' +
         '<td class="p-4">' + statusHtml + '</td>' +
         '<td class="p-4"><div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">' +
           '<button class="view-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Xem hồ sơ" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">visibility</span></button>' +
           (isActive
-            ? '<button class="lock-btn text-error hover:bg-error-container p-1 rounded-lg" title="Khóa" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock</span></button>'
-            : '<button class="unlock-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="Mở khóa" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock_open</span></button>') +
+            ? '<button class="lock-btn text-error hover:bg-error-container p-1 rounded-lg" title="Kh\u00f3a" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock</span></button>'
+            : '<button class="unlock-btn text-primary hover:bg-primary-fixed p-1 rounded-lg" title="M\u1edf kh\u00f3a" data-uid="' + u.user_id + '"><span class="material-symbols-outlined text-[20px]">lock_open</span></button>') +
         '</div></td>';
 
       tr.addEventListener('click', function(e) {
@@ -637,7 +638,7 @@
     document.getElementById('detail-name').textContent = u.full_name || '—';
     document.getElementById('detail-since').textContent = 'Cư dân từ ' + fmtDate(u.created_at);
     document.getElementById('detail-phone').textContent = u.phone || '—';
-    document.getElementById('detail-address').textContent = u.address || '—';
+    document.getElementById('detail-address').textContent = (u.customers && u.customers.default_address) ? u.customers.default_address : '—';
     document.getElementById('detail-status-label').textContent = u.status === 'ACTIVE' ? 'Đang hoạt động' : 'Đã khóa';
 
     var dot = document.getElementById('detail-status-dot');
@@ -646,7 +647,7 @@
       dot.classList.add(u.status === 'ACTIVE' ? 'bg-green-500' : 'bg-error');
     }
 
-    var orders = allOrders.filter(function(o) { return o.customers && o.customers.user_id === u.user_id; });
+    var orders = allOrders.filter(function(o) { return o.customer_id === u.user_id; });
     document.getElementById('detail-orders').textContent = orders.length + ' đơn';
 
     var listEl = document.getElementById('detail-orders-list');

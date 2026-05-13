@@ -295,7 +295,8 @@ let ApiService = class ApiService {
                 role: true,
                 status: true,
                 created_at: true,
-                taskers: true
+                taskers: true,
+                customers: { select: { default_address: true } }
             }
         });
     }

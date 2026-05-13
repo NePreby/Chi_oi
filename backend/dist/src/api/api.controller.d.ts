@@ -327,12 +327,12 @@ export declare class ApiController {
         status: string | null;
         created_at: Date | null;
         description: string | null;
-        order_id: number | null;
         wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
         type: string;
+        order_id: number | null;
     }>;
     resolveTicket(req: any, id: number, status: string): Promise<{
         user_id: number;
@@ -354,6 +354,9 @@ export declare class ApiController {
         role: string;
         status: string | null;
         created_at: Date | null;
+        customers: {
+            default_address: string | null;
+        } | null;
         taskers: {
             tasker_id: number;
             bio: string | null;
@@ -514,11 +517,11 @@ export declare class ApiController {
         status: string | null;
         created_at: Date | null;
         description: string | null;
-        order_id: number | null;
         wallet_id: number;
         transaction_id: number;
         transaction_code: string;
         amount: import("@prisma/client-runtime-utils").Decimal;
         type: string;
+        order_id: number | null;
     }[]>;
 }
