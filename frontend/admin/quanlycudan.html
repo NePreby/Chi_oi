@@ -255,27 +255,65 @@
 <!-- Toolbar -->
 <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex items-center justify-between gap-4">
 <div class="flex items-center gap-3 flex-1">
-<select class="bg-surface-container-low border-outline-variant text-body-sm rounded-xl px-4 py-2 focus:ring-primary focus:border-primary">
-<option>Tất cả Khu vực/Toà nhà</option>
-<option>Quận 1</option>
-<option>Quận 7</option>
-<option>Bình Thạnh</option>
-</select>
 <select id="filter-status" class="bg-surface-container-low border-outline-variant text-body-sm rounded-xl px-4 py-2 focus:ring-primary focus:border-primary">
-<option value="">Trạng thái tài khoản</option>
+<option value="">Tất cả trạng thái</option>
 <option value="ACTIVE">Hoạt động</option>
 <option value="BANNED">Đã khóa</option>
 </select>
-<button class="flex items-center gap-2 text-primary font-label-bold px-4 py-2 hover:bg-surface-container-low rounded-xl transition-colors">
-<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
-                            Lọc
-                        </button>
 </div>
-<button class="bg-primary-container text-white px-6 py-2 rounded-xl font-label-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<button id="btn-add-resident" class="bg-primary text-white px-6 py-2 rounded-xl font-label-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
 <span class="material-symbols-outlined" data-icon="add">add</span>
-                        Thêm cư dân mới
-                    </button>
+Thêm cư dân mới
+</button>
 </div>
+
+<!-- Modal Thêm cư dân mới -->
+<div id="modal-add-resident" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="modal-add-overlay"></div>
+  <div class="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md p-8 z-10 animate-fadeIn">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="font-title-sm text-title-sm text-on-surface">Thêm cư dân mới</h3>
+      <button id="btn-close-add-modal" class="text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form id="form-add-resident" class="space-y-4">
+      <div>
+        <label class="block text-body-sm text-on-surface-variant mb-1">Họ và tên <span class="text-error">*</span></label>
+        <input id="add-fullname" type="text" placeholder="Nguyễn Văn A"
+          class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2 text-body-sm focus:ring-primary focus:border-primary outline-none" required/>
+      </div>
+      <div>
+        <label class="block text-body-sm text-on-surface-variant mb-1">Số điện thoại <span class="text-error">*</span></label>
+        <input id="add-phone" type="tel" placeholder="0901234567"
+          class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2 text-body-sm focus:ring-primary focus:border-primary outline-none" required/>
+      </div>
+      <div>
+        <label class="block text-body-sm text-on-surface-variant mb-1">Mật khẩu <span class="text-error">*</span></label>
+        <input id="add-password" type="password" placeholder="Tối thiểu 6 ký tự"
+          class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2 text-body-sm focus:ring-primary focus:border-primary outline-none" required/>
+      </div>
+      <div>
+        <label class="block text-body-sm text-on-surface-variant mb-1">Email</label>
+        <input id="add-email" type="email" placeholder="example@email.com"
+          class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2 text-body-sm focus:ring-primary focus:border-primary outline-none"/>
+      </div>
+      <div id="add-error" class="hidden text-error text-body-sm bg-error-container rounded-xl px-4 py-2"></div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="btn-cancel-add"
+          class="flex-1 py-3 bg-surface-container-low text-on-surface-variant rounded-xl font-label-bold hover:bg-surface-container transition">
+          Hủy
+        </button>
+        <button type="submit" id="btn-submit-add"
+          class="flex-1 py-3 bg-primary text-white rounded-xl font-label-bold hover:opacity-90 transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">person_add</span>
+          Tạo tài khoản
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Data Table -->
 <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
 <table class="w-full text-left border-collapse">
@@ -569,9 +607,74 @@
   var allOrders = [];
   var currentUserId = null;
 
+  // ---- MODAL THÊM CƯ DÂN ----
+  var modal = document.getElementById('modal-add-resident');
+  var btnAdd = document.getElementById('btn-add-resident');
+  var btnCloseModal = document.getElementById('btn-close-add-modal');
+  var btnCancelAdd = document.getElementById('btn-cancel-add');
+  var overlay = document.getElementById('modal-add-overlay');
+  var formAdd = document.getElementById('form-add-resident');
+  var addError = document.getElementById('add-error');
+
+  function openAddModal() {
+    if (modal) { modal.classList.remove('hidden'); formAdd && formAdd.reset(); if (addError) addError.classList.add('hidden'); }
+  }
+  function closeAddModal() { if (modal) modal.classList.add('hidden'); }
+
+  if (btnAdd) btnAdd.addEventListener('click', openAddModal);
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeAddModal);
+  if (btnCancelAdd) btnCancelAdd.addEventListener('click', closeAddModal);
+  if (overlay) overlay.addEventListener('click', closeAddModal);
+
+  if (formAdd) {
+    formAdd.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (addError) addError.classList.add('hidden');
+      var fullName = document.getElementById('add-fullname').value.trim();
+      var phone = document.getElementById('add-phone').value.trim();
+      var password = document.getElementById('add-password').value;
+      var email = document.getElementById('add-email').value.trim();
+
+      if (!fullName || !phone || !password) {
+        if (addError) { addError.textContent = 'Vui lòng điền đầy đủ các trường bắt buộc.'; addError.classList.remove('hidden'); }
+        return;
+      }
+      if (password.length < 6) {
+        if (addError) { addError.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.'; addError.classList.remove('hidden'); }
+        return;
+      }
+
+      var submitBtn = document.getElementById('btn-submit-add');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Đang tạo...'; }
+
+      try {
+        var body = { full_name: fullName, phone: phone, password: password, role: 'CUSTOMER' };
+        if (email) body.email = email;
+        await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify(body) });
+        closeAddModal();
+        showToastMsg('✅ Đã tạo tài khoản cư dân: ' + fullName);
+        // Reload danh sách
+        var newUsers = await apiFetch('/api/admin/users');
+        allCustomers = (newUsers || []).filter(function(u) { return u.role === 'CUSTOMER'; });
+        filterAndRender();
+        // Cập nhật stat-total
+        var statTotal = document.getElementById('stat-total');
+        if (statTotal) statTotal.textContent = allCustomers.length;
+        var statActive = document.getElementById('stat-active');
+        if (statActive) statActive.textContent = allCustomers.filter(function(u) { return u.status === 'ACTIVE'; }).length;
+      } catch(err) {
+        if (addError) { addError.textContent = '❌ ' + (err.message || 'Lỗi tạo tài khoản'); addError.classList.remove('hidden'); }
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">person_add</span> Tạo tài khoản'; }
+      }
+    });
+  }
+  // ---- END MODAL ----
+
   function fmtDate(d) {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('vi-VN');
+
   }
 
   function renderTable(customers) {
