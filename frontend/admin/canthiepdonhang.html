@@ -212,16 +212,36 @@
 </div>
 </div>
 </header>
-<div class="max-w-5xl space-y-gutter">
-
-<!-- Bộ chọn đơn hàng -->
-<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 p-4 mb-4 flex items-center gap-4">
-    <label class="font-label-bold text-on-surface whitespace-nowrap">Chọn đơn hàng cần can thiệp:</label>
-    <select id="ct-order-selector" class="flex-1 p-2 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-body-md bg-white">
-        <option value="">-- Chọn mã đơn hàng --</option>
-    </select>
+<div class="max-w-5xl space-y-gutter" id="intervention-list">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Danh sách đơn hàng cần can thiệp</h2>
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                    <tr class="bg-surface-container-low/50 border-b border-outline-variant/30">
+                        <th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Mã đơn</th>
+                        <th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Khách hàng</th>
+                        <th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Dịch vụ</th>
+                        <th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Trạng thái</th>
+                        <th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Thời gian tạo</th>
+                        <th class="px-6 py-4 text-right"></th>
+                    </tr>
+                </thead>
+                <tbody id="ct-table-body">
+                    <tr><td colspan="6" class="text-center py-8">Đang tải...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+<div class="max-w-5xl space-y-gutter hidden" id="intervention-details">
+<div class="flex items-center mb-2">
+    <button id="btn-back-to-list" class="flex items-center text-primary hover:text-[#8b3900] transition-colors font-label-bold text-label-bold">
+        <span class="material-symbols-outlined mr-1 text-[18px]">arrow_back</span>
+        QUAY LẠI DANH SÁCH
+    </button>
+</div>
 <!-- 1. Panel Thông tin Đơn hàng -->
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
 <div class="p-stack_lg border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/30">
@@ -571,41 +591,58 @@
   };
 
   var urlParams = new URLSearchParams(window.location.search);
-  var currentOrderId = parseInt(urlParams.get('id'));
+    var currentOrderId = parseInt(urlParams.get('id'));
+    var allOrders = [];
 
-  showLoading();
-  try {
-    var orders = await apiFetch('/api/admin/orders');
-    hideLoading();
-    
-    var targetOrder = null;
-    if (currentOrderId) {
-      targetOrder = orders.find(function(o) { return o.order_id === currentOrderId; });
-    } else {
-      targetOrder = orders.find(function(o) { return ['PENDING', 'SEARCHING', 'IN_PROGRESS', 'ACCEPTED', 'TASKER_ARRIVED'].indexOf(o.status) > -1; });
+    function showOrderList() {
+      document.getElementById('intervention-list').classList.remove('hidden');
+      document.getElementById('intervention-details').classList.add('hidden');
     }
 
-    // Load dropdown options
-    var selector = document.getElementById('ct-order-selector');
-    if (selector) {
-      orders.forEach(function(o) {
-        var sLabel = statusMap[o.status] ? statusMap[o.status].label : o.status;
-        var custName = (o.customers && o.customers.users && o.customers.users.full_name) || 'Khách';
-        var opt = document.createElement('option');
-        opt.value = o.order_id;
-        opt.textContent = '#DH-' + String(o.order_id).padStart(4, '0') + ' | ' + custName + ' | ' + sLabel;
-        if (targetOrder && o.order_id === targetOrder.order_id) opt.selected = true;
-        selector.appendChild(opt);
+    function renderOrderList(orders) {
+      var tbody = document.getElementById('ct-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      var eligibleOrders = orders.filter(function(o) {
+        return ['PENDING', 'SEARCHING', 'IN_PROGRESS', 'ACCEPTED', 'TASKER_ARRIVED'].indexOf(o.status) > -1;
       });
-      selector.addEventListener('change', function() {
-        if (this.value) {
-          window.location.href = 'canthiepdonhang.html?id=' + this.value;
-        }
+
+      if (eligibleOrders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8">Không có đơn hàng nào cần can thiệp lúc này</td></tr>';
+        return;
+      }
+
+      eligibleOrders.forEach(function(order, idx) {
+        var s = statusMap[order.status] || { label: order.status, cls: 'bg-gray-100 text-gray-700' };
+        var customerName = (order.customers && order.customers.users && order.customers.users.full_name) ? order.customers.users.full_name : '—';
+        var taskerName = (order.taskers && order.taskers.users && order.taskers.users.full_name) ? order.taskers.users.full_name : '—';
+        var serviceName = (order.services && order.services.name) ? order.services.name : '—';
+
+        var tr = document.createElement('tr');
+        tr.className = (idx % 2 ? 'bg-[#F8F5F3]/30 ' : '') + 'hover:bg-surface-container-low/50 transition-colors group cursor-pointer';
+        tr.innerHTML =
+          '<td class="px-6 py-4 font-label-bold text-primary">#DH-' + String(order.order_id).padStart(4, '0') + '</td>' +
+          '<td class="px-6 py-4 font-body-sm text-on-surface">' + customerName + '</td>' +
+          '<td class="px-6 py-4 font-body-sm text-on-surface-variant">' + serviceName + '</td>' +
+          '<td class="px-6 py-4"><span class="mx-auto block w-max px-3 py-1 rounded-full font-label-md text-[11px] ' + s.cls + '">' + s.label + '</span></td>' +
+          '<td class="px-6 py-4 font-body-sm text-on-surface-variant">' + formatDateTime(order.created_at) + '</td>' +
+          '<td class="px-6 py-4 text-right"><button class="px-4 py-1 rounded-full bg-primary/10 text-primary font-label-bold text-[12px] hover:bg-primary hover:text-white transition-colors">CAN THIỆP</button></td>';
+
+        tr.addEventListener('click', function() {
+          showOrderDetail(order);
+        });
+        tbody.appendChild(tr);
       });
     }
 
-    if (targetOrder) {
+    function showOrderDetail(targetOrder) {
+      if (!targetOrder) return;
       currentOrderId = targetOrder.order_id;
+      
+      document.getElementById('intervention-list').classList.add('hidden');
+      document.getElementById('intervention-details').classList.remove('hidden');
+
       document.getElementById('ct-code').textContent = '#DH-' + String(targetOrder.order_id).padStart(4, '0');
       document.getElementById('ct-date').textContent = 'Ngày tạo: ' + formatDateTime(targetOrder.created_at);
       var s = statusMap[targetOrder.status] || { label: targetOrder.status, cls: 'bg-gray-100 text-gray-700' };
@@ -632,13 +669,40 @@
       
       var timelineDateEl = document.getElementById('ct-timeline-date');
       if (timelineDateEl) timelineDateEl.textContent = formatDateTime(targetOrder.created_at);
-    } else {
-      showToastMsg('Không tìm thấy đơn hàng để can thiệp.');
     }
-  } catch(e) {
-    hideLoading();
-    showToastMsg('Lỗi tải dữ liệu: ' + e.message);
-  }
+
+    showLoading();
+    try {
+      allOrders = await apiFetch('/api/admin/orders');
+      hideLoading();
+      
+      if (currentOrderId) {
+        var targetOrder = allOrders.find(function(o) { return o.order_id === currentOrderId; });
+        if (targetOrder) {
+          showOrderDetail(targetOrder);
+        } else {
+          showToastMsg('Không tìm thấy đơn hàng ID=' + currentOrderId);
+          renderOrderList(allOrders);
+          showOrderList();
+        }
+      } else {
+        renderOrderList(allOrders);
+        showOrderList();
+      }
+    } catch(e) {
+      hideLoading();
+      showToastMsg('Lỗi tải dữ liệu: ' + e.message);
+    }
+    
+    var btnBack = document.getElementById('btn-back-to-list');
+    if (btnBack) {
+      btnBack.addEventListener('click', function() {
+        showOrderList();
+        currentOrderId = null;
+        // Optionally update URL to remove ?id=
+        history.replaceState(null, '', 'canthiepdonhang.html');
+      });
+    }
 
   var btnXacNhan = document.getElementById('btn-xac-nhan-can-thiep');
   if (btnXacNhan) {
