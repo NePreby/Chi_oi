@@ -169,10 +169,10 @@ export declare class OrdersController {
         created_at: Date | null;
         order_id: number;
         content: string;
-        is_read: boolean | null;
         message_id: number;
         sender_id: number;
         receiver_id: number;
+        is_read: boolean | null;
     }[]>;
     getOrderById(req: any, id: number): Promise<{
         customers: {

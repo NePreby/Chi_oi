@@ -223,18 +223,18 @@ export declare class OrdersService {
         created_at: Date | null;
         order_id: number;
         content: string;
-        is_read: boolean | null;
         message_id: number;
         sender_id: number;
         receiver_id: number;
+        is_read: boolean | null;
     }>;
     getChatHistory(orderId: number): Promise<{
         created_at: Date | null;
         order_id: number;
         content: string;
-        is_read: boolean | null;
         message_id: number;
         sender_id: number;
         receiver_id: number;
+        is_read: boolean | null;
     }[]>;
 }

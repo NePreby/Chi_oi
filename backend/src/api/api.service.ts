@@ -441,7 +441,7 @@ export class ApiService {
       include: {
         users: { select: { user_id: true, full_name: true, phone: true, email: true } },
         orders: { select: { order_id: true, order_code: true, status: true } },
-        admins: { select: { admin_id: true, full_name: true } },
+        admins: { select: { admin_id: true } },
       },
     });
   }
@@ -452,7 +452,7 @@ export class ApiService {
       include: {
         users: { select: { user_id: true, full_name: true, phone: true, email: true } },
         orders: { select: { order_id: true, order_code: true, status: true } },
-        admins: { select: { admin_id: true, full_name: true } },
+        admins: { select: { admin_id: true } },
       },
     });
     // Get messages for the related order if any
@@ -631,7 +631,7 @@ export class ApiService {
         orderBy: { created_at: 'desc' },
         take: 10,
         include: {
-          services: { select: { service_name: true } },
+          services: { select: { name: true } },
           customers: { include: { users: { select: { full_name: true } } } },
         },
       }),
@@ -665,9 +665,9 @@ export class ApiService {
     const serviceIds = topServices.map(s => s.service_id);
     const serviceNames = await this.prisma.services.findMany({
       where: { service_id: { in: serviceIds } },
-      select: { service_id: true, service_name: true },
+      select: { service_id: true, name: true },
     });
-    const svcMap = Object.fromEntries(serviceNames.map(s => [s.service_id, s.service_name]));
+    const svcMap: Record<number, string> = Object.fromEntries(serviceNames.map((s: any) => [s.service_id, s.name]));
 
     // Enrich top taskers with names
     const taskerIds = topTaskers.filter(t => t.tasker_id).map(t => t.tasker_id!);
@@ -703,24 +703,25 @@ export class ApiService {
         completionRate: totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0,
       },
       chart: { labels: chartLabels, revenue: chartRevenue, orders: chartOrders },
-      topServices: topServices.map(s => ({
+      topServices: topServices.map((s: any) => ({
         name: svcMap[s.service_id] || 'Dich vu #' + s.service_id,
         count: s._count.service_id,
         revenue: Number(s._sum.total_price || 0),
       })),
-      topTaskers: topTaskers.map(t => ({
-        name: taskerMap[t.tasker_id!] || 'Tasker #' + t.tasker_id,
+      topTaskers: topTaskers.map((t: any) => ({
+        name: (taskerMap as any)[t.tasker_id] || 'Tasker #' + t.tasker_id,
         orders: t._count.order_id,
         earnings: Number(t._sum.tasker_earnings || 0),
       })),
-      recentOrders: recentOrders.map(o => ({
+      recentOrders: (recentOrders as any[]).map((o: any) => ({
         code: o.order_code,
-        service: o.services?.service_name,
+        service: (o.services as any)?.name,
         customer: o.customers?.users?.full_name,
         amount: Number(o.total_price),
         status: o.status,
         date: o.created_at,
       })),
+
     };
   }
 }
