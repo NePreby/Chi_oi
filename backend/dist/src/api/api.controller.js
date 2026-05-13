@@ -145,6 +145,9 @@ let ApiController = class ApiController {
     async getAdminWalletStats() {
         return this.apiService.getAdminWalletStats();
     }
+    async getAdminReportStats(period) {
+        return this.apiService.getAdminReportStats(period || '30d');
+    }
 };
 exports.ApiController = ApiController;
 __decorate([
@@ -506,11 +509,20 @@ __decorate([
 __decorate([
     (0, common_1.Get)('admin/wallet-stats'),
     (0, roles_decorator_1.Roles)('ADMIN'),
-    (0, swagger_1.ApiOperation)({ summary: 'Thống kê tổng hợp ví (tổng số dư, giao dịch hôm nay, chờ thanh toán, đã thanh toán tháng này)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Thống kê tổng hợp ví' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "getAdminWalletStats", null);
+__decorate([
+    (0, common_1.Get)('admin/report-stats'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Báo cáo tổng hợp: doanh thu, đơn hàng, Tasker top, dịch vụ top, biểu đồ theo ngày' }),
+    __param(0, (0, common_1.Query)('period')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getAdminReportStats", null);
 exports.ApiController = ApiController = __decorate([
     (0, swagger_1.ApiTags)('Data (Dịch vụ, Gói, Lịch sử)'),
     (0, swagger_1.ApiBearerAuth)(),

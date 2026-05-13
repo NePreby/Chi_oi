@@ -296,8 +296,15 @@ export class ApiController {
 
   @Get('admin/wallet-stats')
   @Roles('ADMIN')
-  @ApiOperation({ summary: 'Thống kê tổng hợp ví (tổng số dư, giao dịch hôm nay, chờ thanh toán, đã thanh toán tháng này)' })
+  @ApiOperation({ summary: 'Thống kê tổng hợp ví' })
   async getAdminWalletStats() {
     return this.apiService.getAdminWalletStats();
+  }
+
+  @Get('admin/report-stats')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Báo cáo tổng hợp: doanh thu, đơn hàng, Tasker top, dịch vụ top, biểu đồ theo ngày' })
+  async getAdminReportStats(@Query('period') period?: string) {
+    return this.apiService.getAdminReportStats(period || '30d');
   }
 }

@@ -589,4 +589,41 @@ export declare class ApiController {
         pendingWithdrawal: number;
         paidThisMonth: number;
     }>;
+    getAdminReportStats(period?: string): Promise<{
+        summary: {
+            totalOrders: number;
+            completedOrders: number;
+            cancelledOrders: number;
+            pendingOrders: number;
+            totalRevenue: number;
+            platformRevenue: number;
+            totalUsers: number;
+            totalTaskers: number;
+            newUsersThisPeriod: number;
+            completionRate: number;
+        };
+        chart: {
+            labels: string[];
+            revenue: number[];
+            orders: number[];
+        };
+        topServices: {
+            name: any;
+            count: number;
+            revenue: number;
+        }[];
+        topTaskers: {
+            name: string;
+            orders: number;
+            earnings: number;
+        }[];
+        recentOrders: {
+            code: string;
+            service: any;
+            customer: any;
+            amount: number;
+            status: string | null;
+            date: Date | null;
+        }[];
+    }>;
 }
