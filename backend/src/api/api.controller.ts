@@ -249,11 +249,35 @@ export class ApiController {
     return this.apiService.adminResolveOrder(req.user.userId, id, note);
   }
 
+  @Get('admin/tickets/stats')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Thống kê inbox (tổng, open, in_progress, resolved)' })
+  async getAdminInboxStats() {
+    return this.apiService.getAdminInboxStats();
+  }
+
   @Get('admin/tickets')
   @Roles('ADMIN')
-  @ApiOperation({ summary: 'Lấy danh sách khiếu nại/hỗ trợ (UC-AD-07)' })
-  async getAdminTickets() {
-    return this.apiService.getAdminTickets();
+  @ApiOperation({ summary: 'Danh sách ticket hỗ trợ (filter status/priority)' })
+  async getAdminTicketsList(@Query('status') status?: string, @Query('priority') priority?: string) {
+    return this.apiService.getAdminTickets(status, priority);
+  }
+
+  @Get('admin/tickets/:id')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Chi tiết ticket + tin nhắn liên quan' })
+  async getAdminTicketDetail(@Param('id', ParseIntPipe) id: number) {
+    return this.apiService.getAdminTicket(id);
+  }
+
+  @Patch('admin/tickets/:id')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Cập nhật trạng thái / ưu tiên ticket' })
+  async updateAdminTicket(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { status?: string; priority?: string },
+  ) {
+    return this.apiService.updateAdminTicket(id, body);
   }
 
   @Get('admin/withdrawals')

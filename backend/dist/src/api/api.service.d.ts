@@ -409,21 +409,7 @@ export declare class ApiService {
         success: boolean;
         message: string;
     }>;
-    getAdminTickets(): Promise<({
-        users: {
-            user_id: number;
-            phone: string;
-            password_hash: string;
-            full_name: string;
-            email: string | null;
-            gender: string | null;
-            avatar_url: string | null;
-            role: string;
-            status: string | null;
-            created_at: Date | null;
-            updated_at: Date | null;
-        };
-    } & {
+    getAdminTickets(status?: string, priority?: string): Promise<{
         user_id: number;
         status: string | null;
         created_at: Date | null;
@@ -435,7 +421,46 @@ export declare class ApiService {
         priority: string | null;
         ticket_id: number;
         admin_id: number | null;
-    })[]>;
+    }[]>;
+    getAdminTicket(ticketId: number): Promise<{
+        ticket: {
+            user_id: number;
+            status: string | null;
+            created_at: Date | null;
+            updated_at: Date | null;
+            description: string;
+            order_id: number | null;
+            ticket_code: string;
+            subject: string;
+            priority: string | null;
+            ticket_id: number;
+            admin_id: number | null;
+        } | null;
+        messages: any[];
+    }>;
+    updateAdminTicket(ticketId: number, data: {
+        status?: string;
+        priority?: string;
+        admin_id?: number;
+    }): Promise<{
+        user_id: number;
+        status: string | null;
+        created_at: Date | null;
+        updated_at: Date | null;
+        description: string;
+        order_id: number | null;
+        ticket_code: string;
+        subject: string;
+        priority: string | null;
+        ticket_id: number;
+        admin_id: number | null;
+    }>;
+    getAdminInboxStats(): Promise<{
+        total: number;
+        open: number;
+        inProgress: number;
+        resolved: number;
+    }>;
     getAdminWithdrawals(): Promise<{
         status: string | null;
         created_at: Date | null;

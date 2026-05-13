@@ -379,11 +379,59 @@ let ApiService = class ApiService {
         });
         return { success: true, message: 'Đã lưu lịch sử can thiệp' };
     }
-    async getAdminTickets() {
+    async getAdminTickets(status, priority) {
+        const where = {};
+        if (status)
+            where.status = status;
+        if (priority)
+            where.priority = priority;
         return this.prisma.support_tickets.findMany({
-            include: { users: true },
-            orderBy: { created_at: 'desc' }
+            where,
+            orderBy: { created_at: 'desc' },
+            take: 100,
+            include: {
+                users: { select: { user_id: true, full_name: true, phone: true, email: true } },
+                orders: { select: { order_id: true, order_code: true, status: true } },
+                admins: { select: { admin_id: true, full_name: true } },
+            },
         });
+    }
+    async getAdminTicket(ticketId) {
+        const ticket = await this.prisma.support_tickets.findUnique({
+            where: { ticket_id: ticketId },
+            include: {
+                users: { select: { user_id: true, full_name: true, phone: true, email: true } },
+                orders: { select: { order_id: true, order_code: true, status: true } },
+                admins: { select: { admin_id: true, full_name: true } },
+            },
+        });
+        let messages = [];
+        if (ticket?.order_id) {
+            messages = await this.prisma.messages.findMany({
+                where: { order_id: ticket.order_id },
+                orderBy: { created_at: 'asc' },
+                include: {
+                    users_messages_sender_idTousers: { select: { user_id: true, full_name: true, role: true } },
+                },
+                take: 50,
+            });
+        }
+        return { ticket, messages };
+    }
+    async updateAdminTicket(ticketId, data) {
+        return this.prisma.support_tickets.update({
+            where: { ticket_id: ticketId },
+            data: { ...data, updated_at: new Date() },
+        });
+    }
+    async getAdminInboxStats() {
+        const [total, open, inProgress, resolved] = await Promise.all([
+            this.prisma.support_tickets.count(),
+            this.prisma.support_tickets.count({ where: { status: 'OPEN' } }),
+            this.prisma.support_tickets.count({ where: { status: 'IN_PROGRESS' } }),
+            this.prisma.support_tickets.count({ where: { status: 'RESOLVED' } }),
+        ]);
+        return { total, open, inProgress, resolved };
     }
     async getAdminWithdrawals() {
         return this.prisma.transactions.findMany({

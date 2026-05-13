@@ -124,8 +124,17 @@ let ApiController = class ApiController {
     async adminResolveOrder(req, id, note) {
         return this.apiService.adminResolveOrder(req.user.userId, id, note);
     }
-    async getAdminTickets() {
-        return this.apiService.getAdminTickets();
+    async getAdminInboxStats() {
+        return this.apiService.getAdminInboxStats();
+    }
+    async getAdminTicketsList(status, priority) {
+        return this.apiService.getAdminTickets(status, priority);
+    }
+    async getAdminTicketDetail(id) {
+        return this.apiService.getAdminTicket(id);
+    }
+    async updateAdminTicket(id, body) {
+        return this.apiService.updateAdminTicket(id, body);
     }
     async getAdminWithdrawals() {
         return this.apiService.getAdminWithdrawals();
@@ -441,13 +450,42 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "adminResolveOrder", null);
 __decorate([
-    (0, common_1.Get)('admin/tickets'),
+    (0, common_1.Get)('admin/tickets/stats'),
     (0, roles_decorator_1.Roles)('ADMIN'),
-    (0, swagger_1.ApiOperation)({ summary: 'Lấy danh sách khiếu nại/hỗ trợ (UC-AD-07)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Thống kê inbox (tổng, open, in_progress, resolved)' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], ApiController.prototype, "getAdminTickets", null);
+], ApiController.prototype, "getAdminInboxStats", null);
+__decorate([
+    (0, common_1.Get)('admin/tickets'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Danh sách ticket hỗ trợ (filter status/priority)' }),
+    __param(0, (0, common_1.Query)('status')),
+    __param(1, (0, common_1.Query)('priority')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getAdminTicketsList", null);
+__decorate([
+    (0, common_1.Get)('admin/tickets/:id'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Chi tiết ticket + tin nhắn liên quan' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "getAdminTicketDetail", null);
+__decorate([
+    (0, common_1.Patch)('admin/tickets/:id'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Cập nhật trạng thái / ưu tiên ticket' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "updateAdminTicket", null);
 __decorate([
     (0, common_1.Get)('admin/withdrawals'),
     (0, roles_decorator_1.Roles)('ADMIN'),
