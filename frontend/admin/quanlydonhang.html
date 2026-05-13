@@ -260,22 +260,18 @@
 <div class="flex flex-col gap-1.5">
 <label class="text-label-md font-label-bold px-1">Loại dịch vụ</label>
 <select id="order-service-filter" class="w-full px-4 py-2 bg-surface-container-low border border-outline-variant/20 rounded-lg text-body-sm focus:ring-2 focus:ring-primary-container outline-none">
-<option>Tất cả</option>
-<option>Dọn dẹp</option>
-<option>Giặt ủi</option>
-<option>Nấu ăn</option>
-<option>Trông trẻ</option>
-<option>Chăm sóc người già</option>
+<option value="">Tất cả</option>
 </select>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="text-label-md font-label-bold px-1">Trạng thái</label>
 <select id="order-status-filter" class="w-full px-4 py-2 bg-surface-container-low border border-outline-variant/20 rounded-lg text-body-sm focus:ring-2 focus:ring-primary-container outline-none">
-<option>Tất cả</option>
-<option>Chờ xác nhận</option>
-<option>Đang thực hiện</option>
-<option>Hoàn thành</option>
-<option>Đã hủy</option>
+<option value="">Tất cả</option>
+<option value="PENDING">Chờ xác nhận</option>
+<option value="ACCEPTED">Đã nhận</option>
+<option value="IN_PROGRESS">Đang thực hiện</option>
+<option value="COMPLETED">Hoàn thành</option>
+<option value="CANCELLED">Đã hủy</option>
 </select>
 </div>
 <div class="flex flex-col gap-1.5 lg:col-span-1 xl:col-span-1">
@@ -725,20 +721,23 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
 
   function applyFilters() {
     var q      = (document.getElementById('order-search') || {}).value || '';
-    var svc    = ((document.getElementById('order-service-filter') || {}).value || '').toLowerCase();
+    var svc    = (document.getElementById('order-service-filter') || {}).value || '';
     var status = (document.getElementById('order-status-filter') || {}).value || '';
 
     q = q.toLowerCase();
+    svc = svc.toLowerCase();
 
     var filtered = allOrders.filter(function(o) {
       var customerName = (o.customers && o.customers.users && o.customers.users.full_name) || '';
       var serviceName  = (o.services && o.services.name) || '';
       var orderCode    = '#DH-' + String(o.order_id).padStart(4, '0');
 
+      // matchQ: empty = show all
       var matchQ = !q || customerName.toLowerCase().includes(q) || serviceName.toLowerCase().includes(q) || orderCode.toLowerCase().includes(q);
-      var matchSvc = !svc || svc === 'tat ca' || serviceName.toLowerCase().includes(svc);
-      var sMap = STATUS_MAP[o.status] || {};
-      var matchStatus = !status || status === 'Tat ca' || (sMap.label && sMap.label.toLowerCase().includes(status.toLowerCase())) || o.status === status;
+      // matchSvc: empty value = show all
+      var matchSvc = !svc || serviceName.toLowerCase().includes(svc);
+      // matchStatus: empty value = show all, else match DB status code
+      var matchStatus = !status || o.status === status;
 
       return matchQ && matchSvc && matchStatus;
     });
@@ -841,7 +840,24 @@ document.querySelectorAll('table tbody tr').forEach(function(row) {
     });
   }
 
+  /* Load services from API to populate dropdown */
+  async function loadServices() {
+    try {
+      var services = await apiFetch('/api/services');
+      var sel = document.getElementById('order-service-filter');
+      if (!sel || !services) return;
+      sel.innerHTML = '<option value="">Tất cả</option>';
+      services.forEach(function(svc) {
+        var opt = document.createElement('option');
+        opt.value = svc.name;
+        opt.textContent = svc.name;
+        sel.appendChild(opt);
+      });
+    } catch(e) { console.warn('Could not load services:', e.message); }
+  }
+
   /* Load data */
+  loadServices();
   showLoading();
   try {
     allOrders = await apiFetch('/api/admin/orders');
