@@ -253,19 +253,18 @@
 </div>
 </div>
 <!-- Toolbar -->
-<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex items-center justify-between gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-3">
 <div class="flex items-center gap-3 flex-1">
-<div class="relative">
-  <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
-  <input id="cudan-search" class="pl-9 pr-4 py-2 bg-white border border-outline-variant/30 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none shadow-sm w-56" placeholder="Tim ten, SDT..."/>
+<div class="relative flex-1 min-w-[200px]"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+  <input id="cudan-search" class="w-full pl-9 pr-4 py-2 bg-white border border-outline-variant/30 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none shadow-sm transition-all" placeholder="Tim ten, SDT..."/>
 </div>
-<select id="filter-status" class="bg-white border border-outline-variant/30 text-body-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none shadow-sm">
+<select id="filter-status" class="min-w-[160px] bg-white border border-outline-variant/30 text-body-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none shadow-sm">
 <option value="">Tất cả trạng thái</option>
 <option value="ACTIVE">Hoạt động</option>
 <option value="BANNED">Đã khóa</option>
 </select>
 </div>
-<button id="btn-add-resident" class="bg-primary text-white px-6 py-2 rounded-xl font-label-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<button id="btn-add-resident" class="bg-primary text-white px-5 py-2 rounded-xl font-label-bold flex items-center gap-2 hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0">
 <span class="material-symbols-outlined" data-icon="add">add</span>
 Thêm cư dân mới
 </button>
