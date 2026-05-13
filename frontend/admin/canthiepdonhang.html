@@ -283,40 +283,14 @@
 <h3 class="font-title-sm text-title-sm mb-6 flex items-center">
 <span class="material-symbols-outlined mr-2 text-primary">history</span> Lịch sử sự kiện &amp; Tranh chấp
                 </h3>
-<div class="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30">
-<!-- Step 1 -->
-<div class="relative pl-10">
-<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-[#e6f4e6] flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px] text-[#008000]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<p class="text-label-bold text-label-bold text-on-surface-variant">22/05 14:30</p>
-<p class="text-body-md font-medium">Đơn hàng được tạo thành công</p>
-</div>
-<!-- Step 2 -->
-<div class="relative pl-10">
-<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-[#e6f4e6] flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px] text-[#008000]" style="font-variation-settings: 'FILL' 1;">person_check</span>
-</div>
-<p class="text-label-bold text-label-bold text-on-surface-variant">22/05 15:00</p>
-<p class="text-body-md font-medium">Tasker Nguyễn Văn Minh đã nhận đơn</p>
-</div>
-<!-- Step 3 (Highlight) -->
-<div class="relative pl-10 py-3 px-4 rounded-lg bg-error-container/10 border-l-4 border-error">
-<div class="absolute -left-[14px] top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-error flex items-center justify-center ring-4 ring-background">
-<span class="material-symbols-outlined text-[18px] text-white">warning</span>
-</div>
-<p class="text-label-bold text-label-bold text-error">23/05 10:15</p>
-<p class="text-body-md font-bold text-error">Khách hàng khiếu nại</p>
-<p class="text-body-sm italic mt-1 text-on-surface">"Tasker đến muộn và làm việc không kỹ, tôi muốn hoàn tiền một phần vì phải tự dọn lại."</p>
-</div>
-<!-- Step 4 (Current) -->
-<div class="relative pl-10">
-<div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-primary-container flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px] text-white" style="font-variation-settings: 'FILL' 1;">edit_note</span>
-</div>
-<p class="text-label-bold text-label-bold text-primary">Hiện tại</p>
-<p class="text-body-md font-medium text-primary">Admin đang tiếp nhận và can thiệp</p>
-</div>
+<div class="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30" id="ct-timeline">
+    <div class="relative pl-10">
+        <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-[#e6f4e6] flex items-center justify-center">
+            <span class="material-symbols-outlined text-[16px] text-[#008000]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+        </div>
+        <p class="text-label-bold text-label-bold text-on-surface-variant" id="ct-timeline-date">...</p>
+        <p class="text-body-md font-medium">Đơn hàng được tạo</p>
+    </div>
 </div>
 </section>
 <!-- 3. Panel Hành động Can thiệp -->
@@ -350,7 +324,7 @@
 <div class="flex flex-col justify-start">
 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-2 uppercase tracking-wide">Số tiền điều chỉnh hoàn trả (VNĐ)</label>
 <div class="relative">
-<input class="w-full p-4 pl-4 pr-12 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none font-headline-md text-headline-md text-primary" type="number" value="250000"/>
+<input id="ct-refund-amount" class="w-full p-4 pl-4 pr-12 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none font-headline-md text-headline-md text-primary" type="number" value="0"/>
 <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-on-surface-variant">VNĐ</span>
 </div>
 <p class="mt-2 text-body-sm text-on-surface-variant flex items-center italic">
@@ -628,6 +602,9 @@
       document.getElementById('ct-service-name').textContent = serviceName;
       document.getElementById('ct-service-time').textContent = formatDateTime(targetOrder.scheduled_time || targetOrder.created_at);
       document.getElementById('ct-price').textContent = formatVND(targetOrder.total_price);
+      
+      var timelineDateEl = document.getElementById('ct-timeline-date');
+      if (timelineDateEl) timelineDateEl.textContent = formatDateTime(targetOrder.created_at);
     } else {
       showToastMsg('Không tìm thấy đơn hàng để can thiệp.');
     }
